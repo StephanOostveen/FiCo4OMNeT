@@ -34,7 +34,7 @@
 #include "fico4omnet/base/FiCo4OMNeT_Defs.h"
 #include "fico4omnet/applications/can/source/CanTrafficSourceAppBase.h"
 //Auto-generated messages
-#include "fico4omnet/linklayer/can/messages/CanDataFrame_m.h"
+#include "CanDataFrame_m.h"
 
 namespace FiCo4OMNeT {
 

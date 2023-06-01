@@ -1,9 +1,9 @@
 #include "fico4omnet/utilities/ResultFilters.h"
 
 //Auto-generated messages
-#include "fico4omnet/linklayer/can/messages/CanDataFrame_m.h"
-#include "fico4omnet/linklayer/can/messages/ErrorFrame_m.h"
-#include "fico4omnet/linklayer/flexray/messages/FRFrame_m.h"
+#include "CanDataFrame_m.h"
+#include "ErrorFrame_m.h"
+#include "FRFrame_m.h"
 
 namespace FiCo4OMNeT {
 

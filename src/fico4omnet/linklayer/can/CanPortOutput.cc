@@ -29,7 +29,7 @@
 #include "fico4omnet/linklayer/can/CanPortOutput.h"
 
 //Auto-generated messages
-#include "fico4omnet/linklayer/can/messages/CanDataFrame_m.h"
+#include "CanDataFrame_m.h"
 
 namespace FiCo4OMNeT {
 

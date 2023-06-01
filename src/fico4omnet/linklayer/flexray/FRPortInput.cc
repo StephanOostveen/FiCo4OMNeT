@@ -19,7 +19,7 @@
 #include "fico4omnet/synchronisation/flexray/FRSync.h"
 
 //Auto-generated messages
-#include "fico4omnet/scheduler/flexray/SchedulerMessage_m.h"
+#include "SchedulerMessage_m.h"
 
 namespace FiCo4OMNeT {
 

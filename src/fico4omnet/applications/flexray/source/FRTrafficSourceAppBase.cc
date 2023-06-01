@@ -15,7 +15,7 @@
 
 #include "fico4omnet/applications/flexray/source/FRTrafficSourceAppBase.h"
 
-#include "fico4omnet/scheduler/flexray/SchedulerMessage_m.h"
+#include "SchedulerMessage_m.h"
 
 namespace FiCo4OMNeT {
 

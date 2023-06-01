@@ -7,7 +7,7 @@
 #include "fico4omnet/buffer/Buffer.h"
 
 //Auto-generated messages
-#include "fico4omnet/linklayer/flexray/messages/FRFrame_m.h"
+#include "FRFrame_m.h"
 
 namespace FiCo4OMNeT {
 

@@ -46,6 +46,6 @@ simple CanColouredSourceApp extends CanTrafficSourceAppBase
         @display("i=block/source");
         
         //The Data Frames ID(s) - String parameter (int) separated with commas
-        string displayString = default("");					
+        string displayString = default("");
 
 }

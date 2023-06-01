@@ -32,8 +32,8 @@
 //FiCo4OMNeT
 #include "fico4omnet/base/FiCo4OMNeT_Defs.h"
 //Auto-generated messages
-#include "fico4omnet/linklayer/can/messages/CanDataFrame_m.h"
-#include "fico4omnet/linklayer/can/messages/ErrorFrame_m.h"
+#include "CanDataFrame_m.h"
+#include "ErrorFrame_m.h"
 
 namespace FiCo4OMNeT {
 

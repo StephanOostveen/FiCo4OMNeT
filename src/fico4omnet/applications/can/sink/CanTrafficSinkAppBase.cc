@@ -28,7 +28,7 @@
 
 #include "fico4omnet/applications/can/sink/CanTrafficSinkAppBase.h"
 
-#include "fico4omnet/linklayer/can/messages/CanDataFrame_m.h"
+#include "CanDataFrame_m.h"
 #include "fico4omnet/buffer/can/CanInputBuffer.h"
 
 namespace FiCo4OMNeT {

@@ -1,0 +1,6 @@
+---
+Checks:            '*,-fuchsia-*,-google-*,-zircon-*,-abseil-*,-altera-*,-llvm-*,-llvmlibc-*,-modernize-use-trailing-return-type,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-bugprone-dynamic-static-initializers,-misc-no-recursion,-cert-dcl21-cpp,-bugprone-easily-swappable-parameters,-readability-function-cognitive-complexity,-readability-identifier-length'
+WarningsAsErrors:  '*'
+HeaderFilterRegex: '.*'
+FormatStyle:       file
+

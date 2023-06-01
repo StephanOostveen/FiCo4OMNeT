@@ -134,7 +134,7 @@ protected:
     /**
      * @brief Initialization of the module.
      */
-    virtual void initialize();
+    void initialize() override;
 
     /**
      * @brief Is called when a new frame is received.
@@ -143,7 +143,7 @@ protected:
      *
      * @param msg The incoming message
      */
-    virtual void handleMessage(cMessage *msg);
+    void handleMessage(cMessage *msg) override;
 
     /**
      * @brief Emits a statistics signal that a frame was sent from the buffer.

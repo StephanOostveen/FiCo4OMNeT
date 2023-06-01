@@ -32,11 +32,6 @@ class FRBuffer : public Buffer {
 
 public:
     /**
-     * @brief This method registers the gate for the reception of the messages.
-     */
-//    virtual void registerDestinationGate();
-
-    /**
      *
      * @return A pointer to the DataFrame with the corresponding ID. Returns
      * null if there is no DataFrame in the buffer.
@@ -78,24 +73,8 @@ protected:
      */
     virtual void initialize();
 
-    /**
-     * @brief Is called when a new Frame is received in the buffer.
-     *
-     * When a frame is received on the in-Gate it is processed. If the destination
-     * address is unspecified it is set according to the ct marker of the buffer.
-     * Afterwards it is enqueued using the buffer specific enqueue(EtherFrame *newFrame)
-     * method. In the end all registered receive callbacks are executed.
-     *
-     * @param msg The incoming message
-     */
-//    virtual void handleMessage(cMessage *msg);
-
 private:
 
-    /**
-     *
-     */
-//    virtual void sendToDestinationGates(FRFrame *msg);
 };
 
 }

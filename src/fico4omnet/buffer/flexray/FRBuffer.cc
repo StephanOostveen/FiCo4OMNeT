@@ -6,15 +6,6 @@ void FRBuffer::initialize(){
     Buffer::initialize();
 }
 
-//void FRBuffer::registerDestinationGate() {
-//    cStringTokenizer destinationGatesTokenizer(
-//            getParentModule()->par("destinationGates"), ",");
-//    while (destinationGatesTokenizer.hasMoreTokens()) {
-//        destinationGates.push_back(
-//                (cGate *) getParentModule()->getSubmodule("sinkApp")->gate(
-//                        destinationGatesTokenizer.nextToken()));
-//    }
-//}
 
 FRFrame* FRBuffer::getFrame(int frameId) {
     for (std::list<cMessage*>::iterator it = frames.begin();
@@ -75,10 +66,4 @@ void FRBuffer::deliverNextFrame() {
     Enter_Method_Silent();
     sendToDestinationGates(frames.front()->dup());
 }
-
-//void FRBuffer::sendToDestinationGates(FRFrame *df) {
-//    send(df,"out");
-//    recordPacketSent(df);
-//}
-
 }

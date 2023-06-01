@@ -65,7 +65,7 @@ public:
      * @param msg The frame to put in the buffer.
      *
      */
-    virtual void putFrame(cMessage* msg);
+    void putFrame(cMessage* msg) override;
 
     /**
      * @brief Deletes the frame with the corresponding can id from the #frames collection.
@@ -113,7 +113,7 @@ protected:
     /**
      * @brief Initialization of the module.
      */
-    virtual void initialize();
+    void initialize() override;
 };
 
 }

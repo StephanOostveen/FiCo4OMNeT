@@ -57,13 +57,13 @@ public:
      * @param msg The DataFrame to put in the buffer.
      *
      */
-    virtual void putFrame(cMessage* msg);
+    void putFrame(cMessage* msg) override;
 
 protected:
     /**
      * @brief Initialization of the module.
      */
-    virtual void initialize();
+    void initialize() override;
 
 private:
     /**

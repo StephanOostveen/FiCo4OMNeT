@@ -101,8 +101,7 @@ void Buffer::putFrame(cMessage* frame) {
 }
 
 void Buffer::deleteFrame(int objectId) {
-    Enter_Method_Silent
-    ();
+    Enter_Method_Silent();
     cMessage *tmp = getFrame(objectId);
     frames.remove(tmp);
     emit(queueLengthSignal, static_cast<unsigned long>(frames.size()));
@@ -115,14 +114,12 @@ void Buffer::deleteFrame(int objectId) {
 }
 
 void Buffer::deliverFrame(int id) {
-    Enter_Method_Silent
-    ();
+    Enter_Method_Silent();
     sendToDestinationGates(getFrame(id)->dup());
 }
 
 void Buffer::deliverNextFrame() {
-    Enter_Method_Silent
-    ();
+    Enter_Method_Silent();
     sendToDestinationGates(frames.front()->dup());
 }
 

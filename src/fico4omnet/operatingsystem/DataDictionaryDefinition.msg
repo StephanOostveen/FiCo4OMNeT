@@ -1,6 +1,6 @@
 namespace FiCo4OMNeT;
 
-class DataDictionary extends cObject {
+class DataDictionaryDefinition extends cOwnedObject {
     string ddName;
     unsigned int bitSize;
 }

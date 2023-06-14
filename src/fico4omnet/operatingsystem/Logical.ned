@@ -13,10 +13,12 @@ simple Logical like ITask {
         bool periodic = default(true);
         int priority = default(6); 
 
-        object canInput = default(CanList{messages: []});
-        object canOutput = default(CanList{messages: []});
+        object canInput = default(FiCo4OMNeT::CanList{definition: []});
+        object canOutput = default(FiCo4OMNeT::CanList{definition: []});
     gates:
-        output frameOut @labels(DataFrame); // Transmit a frame on the CAN bus
-        inout getFrame; // Read a received CAN frame
+        output frameOut[] @labels(DataFrame); // Transmit a frame on the CAN bus
+        inout getFrame[]; // Read a received CAN frame
+        inout getDataDict[]; // Read the value of a stored datadict
+        output setDatadict[]; // Write to a datadict
         inout scheduler @labels(SchedulerEvent);
 }

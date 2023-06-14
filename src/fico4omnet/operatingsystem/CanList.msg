@@ -1,14 +1,14 @@
-import DataDictionary;
+import DataDictionaryDefinition;
 
 namespace FiCo4OMNeT;
 
-class CanDataFrameDefinition extends cObject {
+class CanDataFrameDefinition extends cOwnedObject {
     unsigned int canID; // ID of the message
     unsigned int sizeInBytes;
     string bus;
-    DataDictionary dd[];
+    DataDictionaryDefinition dd[];
 }
 
-class CanList extends cObject {
+class CanList extends cOwnedObject {
     CanDataFrameDefinition definition[];
 }

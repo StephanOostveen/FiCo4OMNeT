@@ -51,8 +51,7 @@ import fico4omnet.operatingsystem.Scheduler;
 module LyCanNode
 {
     parameters:
-        @display("i=device/modem;bgb=248,222");
-        
+        @display("i=device/modem");
         //Number of source apps in this node
         int numSourceApps = default(1);
         //Number of sink apps in this node
@@ -98,7 +97,9 @@ module LyCanNode
             @display("p=149,102");
         }
         
-        scheduler : Scheduler;
+        scheduler : Scheduler {
+            @display("p=149,32");
+        };
 
         logical : Logical;
     connections:
@@ -107,9 +108,13 @@ module LyCanNode
         for i=0..numSourceApps-1 {
             sourceApp[i].out --> bufferOut.in[i];
             sourceApp[i].scheduler <--> scheduler.tasks++;
+            logical.frameOut --> sourceApp[i].in++;
         }
 
         for i=0..numSinkApps-1 {
             sinkApp[i].scheduler <--> scheduler.tasks++;
+            logical.getFrame <--> sinkApp[i].getFrame++;
         }
+
+        logical.scheduler <--> scheduler.tasks++;
 }

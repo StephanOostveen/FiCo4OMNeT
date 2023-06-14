@@ -125,6 +125,9 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 			scheduleAfter(period, scheduleMsg);
 		}
 	} else if (msg->isSelfMessage() && msg == scheduleMsg) {
+		if (state != TaskState::Blocked) {
+			// TODO: Task overrun, rewrite similar to Logical
+		}
 		auto* readyMsg = new SchedulerEvent();
 		readyMsg->setState(TaskState::Ready);
 		send(readyMsg, "scheduler$o");
@@ -138,14 +141,16 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 		switch (event->getState()) {
 		case TaskState::Running:
 			// Received message from scheduler to resume
-			handleResume();
 			delete msg;
+			handleResume();
 			break;
 		case TaskState::Paused:
 			// Received message from scheduler to pause
-			handlePause();
 			delete msg;
+			handlePause();
 			break;
+		case TaskState::Ready:
+		case TaskState::Blocked:
 		default:
 			delete msg;
 			throw omnetpp::cRuntimeError(

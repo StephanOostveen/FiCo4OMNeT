@@ -33,7 +33,7 @@ void CanLySinkApp::handleMessage(omnetpp::cMessage* msg) {
 		// Execution of receiving can frames from the bus has finished.
 		delete msg;
 		handleSelfMsg();
-	} else if (msg->arrivedOn("getFrame")) {
+	} else if (msg->arrivedOn("getFrame$i")) {
 		// Logical/Application requests a dataframe, the requested frame id is in the msg.
 		auto* request = omnetpp::check_and_cast<FrameRequest*>(msg);
 		handleFrameRequest(request);
@@ -45,7 +45,7 @@ void CanLySinkApp::handleMessage(omnetpp::cMessage* msg) {
 		auto* frame = omnetpp::check_and_cast<CanDataFrame*>(msg);
 		handleIncomingFrame(frame);
 		// No delete needed as frame is stored in local buffer
-	} else if (msg->arrivedOn("scheduler")) {
+	} else if (msg->arrivedOn("scheduler$i")) {
 		auto* schedulerMsg = omnetpp::check_and_cast<SchedulerEvent*>(msg);
 		if (schedulerMsg->getState() == TaskState::Running) {
 			delete msg;

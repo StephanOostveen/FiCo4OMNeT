@@ -34,7 +34,7 @@ private:
 		// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
 		omnetpp::simtime_t period;
 		omnetpp::intval_t  priority;
-		omnetpp::cGate*    inGate;
+		omnetpp::cGate*    inGate;   // Might need to change to gate ID for uniqueness and stability
 		omnetpp::cGate*    outGate;
 		bool               periodic;
 		// NOLINTEND(misc-non-private-member-variables-in-classes)

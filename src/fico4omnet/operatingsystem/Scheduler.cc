@@ -44,6 +44,7 @@ void Scheduler::initialize(int stage) {
 			const auto period   = task->par("period").doubleValue();
 			const auto priority = task->par("priority").intValue();
 			const auto periodic = task->par("periodic").boolValue();
+			// Might need to change gate ptrs to gate ID for uniqueness and stability
 			blocked.emplace_back(period, priority, taskGate->getOtherHalf(), taskGate, periodic);
 		}
 		// Start the Physical with the execution of the scheduler

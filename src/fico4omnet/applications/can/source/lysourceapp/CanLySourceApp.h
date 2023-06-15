@@ -38,6 +38,8 @@ private:
 	void handleResume();
 	void handlePause();
 
+	int frameToBus(const CanDataFrame* frame);
+
 	long                        bufferSize() const;
 	std::optional<unsigned int> nextFrame() const;
 

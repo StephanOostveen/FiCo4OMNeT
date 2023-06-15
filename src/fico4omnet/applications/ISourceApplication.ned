@@ -39,5 +39,5 @@ moduleinterface ISourceApplication
         @display("i=block/source");
         
     gates:
-        output out;
+        output out[];
 }

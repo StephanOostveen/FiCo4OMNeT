@@ -48,7 +48,7 @@ simple CanLySourceApp like ISourceApplication, ITask {
         double periodInaccurracy @unit(s) = default(0s);
     gates:
         // Output towards the Hardware buffer, overrides ISourceApplication::out
-        output out @labels(DataFrame);
+        output out[] @labels(DataFrame);
 
         //Received remote frames from other nodes arive at this gate, should never happen in our case
         // But keep it for compatibility with FiCo4OMNeT

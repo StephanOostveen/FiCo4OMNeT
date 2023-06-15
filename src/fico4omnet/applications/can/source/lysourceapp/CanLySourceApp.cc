@@ -84,6 +84,10 @@ void CanLySourceApp::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_
 
 void CanLySourceApp::registerFrame() {}
 
+int CanLySourceApp::frameToBus(const CanDataFrame* const frame) {
+	return 0;   // TODO implement
+}
+
 void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->arrivedOn("remoteIn")) {
 		delete msg;
@@ -111,7 +115,7 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 		softwareBuffer[*msgToSend] = nullptr;
 		msgToSend                  = std::nullopt;
 		bubble("sent buffered frame to hardware");
-		send(frame, "out");
+		send(frame, "out", frameToBus(frame));
 		emit(sentDFSignal, frame);
 		emit(bufferLengthSignal, bufferSize());
 
@@ -172,7 +176,7 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 	if (hardwareBufferLength < maxHardwareBufferLength && 0 == bufferSize()) {
 		// hardware buffer has room and software buffer is empty.
 		bubble("sent frame to hardware:");
-		send(frame, "out");
+		send(frame, "out", frameToBus(frame));
 		emit(sentDFSignal, frame);
 	} else {
 		// We need to store the message in a software buffer

@@ -55,6 +55,7 @@ void Logical::parseCANInput() {
 	}
 }
 
+void Logical::parseCANOutput() {}
 void Logical::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->isSelfMessage() && msg == scheduleMsg) {
 		if (state == TaskState::Blocked) {

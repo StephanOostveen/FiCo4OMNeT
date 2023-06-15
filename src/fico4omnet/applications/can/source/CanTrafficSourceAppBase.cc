@@ -53,17 +53,17 @@ CanTrafficSourceAppBase::~CanTrafficSourceAppBase()
 void CanTrafficSourceAppBase::initialize(int stage) {
     if (stage == 0) {
         canVersion =
-                getParentModule()->gate("gate$o")->getPathEndGate()->getOwnerModule()->getParentModule()->par(
+                getParentModule()->gate("gate$o",0)->getPathEndGate()->getOwnerModule()->getParentModule()->par(
                         "version").stdstringValue();
         bitStuffingPercentage =
-                getParentModule()->gate("gate$o")->getPathEndGate()->getOwnerModule()->getParentModule()->par(
+                getParentModule()->gate("gate$o",0)->getPathEndGate()->getOwnerModule()->getParentModule()->par(
                         "bitStuffingPercentage");
         sentDFSignal = registerSignal("txDF");
         sentRFSignal = registerSignal("txRF");
         checkParameterValues();
     } else if (stage == 2) {
         CanClock* canClock =
-                dynamic_cast<CanClock*>(getParentModule()->getSubmodule("canClock"));
+                dynamic_cast<CanClock*>(getParentModule()->getSubmodule("canDevice",0)->getSubmodule("canClock"));
         currentDrift = canClock->getCurrentDrift();
         initialDataFrameCreation();
         initialRemoteFrameCreation();

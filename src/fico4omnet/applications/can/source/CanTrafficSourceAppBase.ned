@@ -76,7 +76,7 @@ simple CanTrafficSourceAppBase like ISourceApplication
         
     gates:
         //Frames are forwarded via this output gate to the next module. 
-        output out @labels(DataFrame);
+        output out[] @labels(DataFrame);
         //Received remote frames are received at this gate. 
         input remoteIn @directIn;
 }

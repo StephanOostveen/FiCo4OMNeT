@@ -23,6 +23,7 @@ protected:
 
 private:
 	void parseCANInput();
+	void parseCANOutput();
 
 	void handleResume();
 	void handlePause();

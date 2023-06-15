@@ -63,7 +63,7 @@ simple CanInputBuffer like ICanBuffer
         @statistic[size](title="Queue Size"; source=size; record=vector,stats; unit=B; interpolationmode=sample-hold);
         
         //Comma seperated list of gates where the frames of the buffer are delivered
-        string destination_gates = default("sinkApp[0].dataIn");
+        string destination_gates = default("sinkApp.dataIn");
         bool MOB = default(true); 						//If true frames with the same ID will be overwritten.
         string idIncomingFrames = default("0");			// The Incoming Frame ID(s) - String parameter (int) separated with commas
 

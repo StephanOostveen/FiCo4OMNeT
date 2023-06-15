@@ -37,6 +37,6 @@ simple FRTrafficSourceAppBase like ISourceApplication
         int syncFrame = default(0);
         
     gates:
-        output out;
+        output out[];
         input schedulerIn @directIn;
 }

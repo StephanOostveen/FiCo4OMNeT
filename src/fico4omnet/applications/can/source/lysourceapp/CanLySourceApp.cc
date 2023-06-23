@@ -3,6 +3,7 @@
 #include "CanTrafficSourceAppBase.h"
 
 #include "ScheduleMsg_m.h"
+#include "omnetpp/ccontextswitcher.h"
 #include "omnetpp/cexception.h"
 #include "omnetpp/checkandcast.h"
 #include "omnetpp/clistener.h"
@@ -19,7 +20,7 @@
 #include <optional>
 
 namespace FiCo4OMNeT {
-Define_Module(CanLySourceApp);
+Define_Module(CanLySourceApp);   // NOLINT
 
 CanLySourceApp::~CanLySourceApp() noexcept {
 	for (auto frame : softwareBuffer) {
@@ -49,8 +50,10 @@ void CanLySourceApp::initialize(int stage) {
 		overrunSignal      = registerSignal("overrun");
 		bufferLengthSignal = registerSignal("softbufferLength");
 
+		// NOLINTBEGIN(cppcoreguidelines-owning-memory)
 		selfmsg     = new omnetpp::cMessage{"CANLySourceApp execution finished"};
 		scheduleMsg = new omnetpp::cMessage{"CANLySourceApp rescheduled itself"};
+		// NOLINTEND(cppcoreguidelines-owning-memory)
 	}
 	CanTrafficSourceAppBase::initialize(stage);
 }
@@ -67,46 +70,50 @@ void CanLySourceApp::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_
 			if (state == TaskState::Blocked && value < maxHardwareBufferLength
 			    && 0 < bufferSize()) {
 				// We were blocked but there is room available in the hardwarebuffer
-				auto* msg = new SchedulerEvent();
+				auto* msg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 				msg->setState(TaskState::Ready);
 				send(msg, "scheduler$o");
 				state = TaskState::Ready;
 			}
 		} else {
+			// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 			EV << getFullPath() << " received a 'length' signal from cModule "
 			   << src->getFullPath();
 		}
 	} else {
+		// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 		EV << getFullPath() << " received a 'length' signal from something that wasnt a cModule "
 		   << src->getFullPath();
 	}
 }
 
-void CanLySourceApp::registerFrame() {}
+void CanLySourceApp::registerFrame(unsigned int frameId, const char* busName) {
+	Enter_Method_Silent();
+}
 
-int CanLySourceApp::frameToBus(const CanDataFrame* const frame) {
+int CanLySourceApp::frameToBus(const CanDataFrame* frame) {
 	return 0;   // TODO implement
 }
 
 void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->arrivedOn("remoteIn")) {
-		delete msg;
+		delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 		throw omnetpp::cRuntimeError("CanLySourceApp received a remote frame");
 	}
 
 	if (msg->isSelfMessage() && msg == selfmsg) {
 		// Execution time of task finished.
 		if (!msgToSend) {
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			throw omnetpp::cRuntimeError("CanLySourceApp tried to transmit a non existing frame");
 		}
 		if (hardwareBufferLength >= maxHardwareBufferLength) {
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			throw omnetpp::cRuntimeError(
 			    "CanLySourceApp tried to transmit a frame while the hardware buffer was full");
 		}
 		if (state != TaskState::Running) {
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			throw omnetpp::cRuntimeError(
 			    "CanLySourceApp received self message while not in running state");
 		}
@@ -114,12 +121,14 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 		auto* frame                = softwareBuffer[*msgToSend];
 		softwareBuffer[*msgToSend] = nullptr;
 		msgToSend                  = std::nullopt;
-		bubble("sent buffered frame to hardware");
+		if (hasGUI()) {
+			bubble("sent buffered frame to hardware");
+		}
 		send(frame, "out", frameToBus(frame));
 		emit(sentDFSignal, frame);
 		emit(bufferLengthSignal, bufferSize());
 
-		auto* blockedMsg = new SchedulerEvent();
+		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
 		send(blockedMsg, "scheduler$o");
 		state = TaskState::Blocked;
@@ -132,7 +141,7 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 		if (state != TaskState::Blocked) {
 			// TODO: Task overrun, rewrite similar to Logical
 		}
-		auto* readyMsg = new SchedulerEvent();
+		auto* readyMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		readyMsg->setState(TaskState::Ready);
 		send(readyMsg, "scheduler$o");
 		state = TaskState::Ready;
@@ -145,24 +154,24 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 		switch (event->getState()) {
 		case TaskState::Running:
 			// Received message from scheduler to resume
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			handleResume();
 			break;
 		case TaskState::Paused:
 			// Received message from scheduler to pause
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			handlePause();
 			break;
 		case TaskState::Ready:
 		case TaskState::Blocked:
 		default:
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			throw omnetpp::cRuntimeError(
 			    "CanLySourceApp received illegal taskstate from scheduler");
 			break;
 		}
 	} else {
-		delete msg;
+		delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 		throw omnetpp::cRuntimeError("CanLySourceApp received a message on an unhandled port");
 	}
 }
@@ -175,7 +184,9 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 
 	if (hardwareBufferLength < maxHardwareBufferLength && 0 == bufferSize()) {
 		// hardware buffer has room and software buffer is empty.
-		bubble("sent frame to hardware:");
+		if (hasGUI()) {
+			bubble("sent frame to hardware");
+		}
 		send(frame, "out", frameToBus(frame));
 		emit(sentDFSignal, frame);
 	} else {
@@ -184,7 +195,7 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 		if (it != nullptr) {
 			// message overrun, emit signal and override stored value
 			emit(overrunSignal, frame->getCanID());
-			delete it;
+			delete it;   // NOLINT(cppcoreguidelines-owning-memory)
 		}
 		it = frame;
 
@@ -192,7 +203,7 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 		emit(bufferLengthSignal, size);
 
 		if (state == TaskState::Blocked) {
-			auto* msg = new SchedulerEvent();
+			auto* msg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 			msg->setState(TaskState::Ready);
 			send(msg, "scheduler$o");
 			state = TaskState::Ready;
@@ -200,7 +211,9 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 	}
 }
 void CanLySourceApp::handleResume() {
-	bubble("resumed");
+	if (hasGUI()) {
+		bubble("resumed");
+	}
 	if (state == TaskState::Running) {
 		throw omnetpp::cRuntimeError("CANLySourceApp received resume while state was Running");
 	}
@@ -216,7 +229,9 @@ void CanLySourceApp::handleResume() {
 }
 
 void CanLySourceApp::handlePause() {
-	bubble("paused");
+	if (hasGUI()) {
+		bubble("paused");
+	}
 	if (state == TaskState::Ready) {
 		throw omnetpp::cRuntimeError("CANLySourceApp received resume while state was Ready");
 	}

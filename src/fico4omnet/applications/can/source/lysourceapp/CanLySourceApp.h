@@ -21,7 +21,7 @@ public:
 	/*
 	 * The given frame is registered as an initialization step before the simulation starts
 	 */
-	void registerFrame();
+	void registerFrame(unsigned int frameId, const char* busName);
 
 	/**
 	 * overload from cListener for receiving the buffer lengths of the "hardware" buffer

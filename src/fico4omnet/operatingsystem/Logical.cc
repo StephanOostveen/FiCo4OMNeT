@@ -2,9 +2,12 @@
 
 #include "CanDataFrame_m.h"
 #include "CanList_m.h"
+#include "CanLySinkApp.h"
+#include "CanLySourceApp.h"
 #include "DataDictionaryValue_m.h"
 #include "FrameRequest_m.h"
 #include "ScheduleMsg_m.h"
+
 #include "omnetpp/cexception.h"
 #include "omnetpp/checkandcast.h"
 #include "omnetpp/cmessage.h"
@@ -35,6 +38,7 @@ void Logical::initialize() {
 
 	parseCANInput();
 	parseCANOutput();
+	parseDDOutput();
 
 	executionMsg = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
 	scheduleMsg  = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
@@ -42,20 +46,87 @@ void Logical::initialize() {
 }
 
 void Logical::parseCANInput() {
-	// get the object
-
-	// For each CANDataFrame search the matching bus in the model, validate it exists and this
-	// Logical is connected to it. Register the CAN frame reception in the Sink app, add the
-	// relevant gate in the canInput vector.
-
 	const auto* const ptr  = omnetpp::check_and_cast<const CanList*>(par("canInput").objectValue());
 	const auto        size = ptr->getDefinitionArraySize();
+
 	for (size_t i = 0; i < size; ++i) {
+		const auto gateId = gate("getFrame$o")->getBaseId();
+		auto*      sinkAppModule =
+		    omnetpp::check_and_cast<CanLySinkApp*>(getParentModule()->getSubmodule("sinkApp"));
+
 		const auto& frameDefinition = ptr->getDefinition(i);
+		sinkAppModule->registerFrame(frameDefinition.getCanID(), frameDefinition.getBus());
+		canInput.emplace_back(&frameDefinition, gateId);
+
+		// create datastructure for efficiently unpacking a frame into the datadicts
+		const auto ddSize = frameDefinition.getDdArraySize();
+		for (size_t j = 0; j < ddSize; ++j) {
+			const auto& ddDefinition = frameDefinition.getDd(j);
+
+			const int ddVectorSize = gateSize("setDatadict");
+			bool      found        = false;
+			for (int k = 0; k < ddVectorSize; ++k) {
+				const auto* const ddGate   = gate("setDatadict", k);
+				const auto* const ddModule = ddGate->getPathEndGate()->getOwnerModule();
+				const auto* const name     = ddModule->par("name").stringValue();
+				if (0 == std::strcmp(name, ddDefinition.getDdName())) {
+					// Match
+					const int ddGateId = ddGate->getId();
+					canBusOutputDicts.emplace_back(&ddDefinition, ddGateId);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				throw omnetpp::cRuntimeError("Failed to find datadict to write from CAN: \"%s\"",
+				                             ddDefinition.getDdName());
+			}
+		}
 	}
 }
 
-void Logical::parseCANOutput() {}
+void Logical::parseCANOutput() {
+	const auto* const ptr = omnetpp::check_and_cast<const CanList*>(par("canOutput").objectValue());
+	const auto        size = ptr->getDefinitionArraySize();
+
+	const int gateId = gate("frameOut")->getId();
+	for (std::size_t i = 0; i < size; ++i) {
+		const auto& frameDefinition = ptr->getDefinition(i);
+		auto* const sourceAppModule =
+		    omnetpp::check_and_cast<CanLySourceApp*>(getParentModule()->getSubmodule("sourceApp"));
+		sourceAppModule->registerFrame(frameDefinition.getCanID(), frameDefinition.getBus());
+		canOutput.emplace_back(&frameDefinition, gateId);
+	}
+}
+
+void Logical::parseDDOutput() {
+	const auto* const ptr =
+	    omnetpp::check_and_cast<const DataDictList*>(par("dataDictOut").objectValue());
+	const auto size = ptr->getDefinitionArraySize();
+	for (std::size_t i = 0; i < size; ++i) {
+		const auto& ddDefinition = ptr->getDefinition(i);
+
+		const int ddVectorSize = gateSize("setDatadict");
+		bool      found        = false;
+		for (int k = 0; k < ddVectorSize; ++k) {
+			const auto* const ddGate   = gate("setDatadict", k);
+			const auto* const ddModule = ddGate->getPathEndGate()->getOwnerModule();
+			const auto* const name     = ddModule->par("name").stringValue();
+			if (0 == std::strcmp(name, ddDefinition.getDdName())) {
+				// Match
+				const int ddGateId = ddGate->getId();
+				localOutputDicts.emplace_back(&ddDefinition, ddGateId);
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			throw omnetpp::cRuntimeError("Failed to find datadict to write: \"%s\"",
+			                             ddDefinition.getDdName());
+		}
+	}
+}
+
 void Logical::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->isSelfMessage() && msg == scheduleMsg) {
 		if (state == TaskState::Blocked) {
@@ -65,10 +136,16 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 			send(readyMsg, "scheduler$o");
 		} else {
 			// TODO: Task overrun
+			if (hasGUI()) {
+				bubble("Logical overrun");
+			}
 		}
 		scheduleAfter(period, scheduleMsg);
 	} else if (msg->isSelfMessage() && msg == executionMsg) {
 		// Execution finished
+		if (hasGUI()) {
+			bubble("finished");
+		}
 		if (state != TaskState::Running) {
 			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			throw omnetpp::cRuntimeError(
@@ -113,7 +190,9 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 }
 
 void Logical::handleResume() {
-	bubble("resumed");
+	if (hasGUI()) {
+		bubble("resumed");
+	}
 	if (state == TaskState::Running) {
 		throw omnetpp::cRuntimeError("Logical received resume while taskstate was running");
 	}
@@ -131,8 +210,9 @@ void Logical::handleResume() {
 }
 
 void Logical::handlePause() {
-	bubble("paused");
-	bubble("paused");
+	if (hasGUI()) {
+		bubble("paused");
+	}
 	if (state == TaskState::Ready) {
 		throw omnetpp::cRuntimeError("Logical received resume while state was Ready");
 	}
@@ -157,15 +237,10 @@ void Logical::requestDataDict() {
 }
 
 void Logical::requestCANFrames() {
-	// for (int i = 0; i < gateSize("getFrame$o"); ++i) {
-	// 	auto* const       outGate        = gate("getFrame$o", 0);
-	// 	auto* const       sinkAppEndGate = outGate->getPathEndGate();
-	// 	const auto* const sinkAppName    = sinkAppEndGate->getOwnerModule()->getName();
-
-	// }
 	for (const auto& canMsg : canInput) {
 		auto* frameRequest = new FrameRequest();   // NOLINT(cppcoreguidelines-owning-memory)
 		frameRequest->setFrameID(canMsg.definition->getCanID());
+		frameRequest->setBusName(canMsg.definition->getBus());
 		send(frameRequest, canMsg.gateId);
 	}
 }
@@ -207,6 +282,7 @@ void Logical::sendCANFrames() {
 		auto* canFrame = new CanDataFrame();   // NOLINT(cppcoreguidelines-owning-memory)
 		// TODO: Populate CANDataFrame with the Datadicts and generation/minimaldependency time.
 		canFrame->setDisplayString("");
+		canFrame->setBusName(canDef.definition->getBus());
 		canFrame->setCanID(canDef.definition->getCanID());
 		canFrame->setRtr(false);
 		canFrame->setPeriod(1.0);
@@ -219,7 +295,9 @@ void Logical::sendCANFrames() {
  * @param frame
  */
 void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
-	bubble("read frame");
+	if (hasGUI()) {
+		bubble("read frame");
+	}
 
 	// TODO: Unpack Datadicts and change minimalDependency time accordingly.
 
@@ -231,7 +309,9 @@ void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
  * @param value
  */
 void Logical::localyStoreReadDataDict(DataDictionaryValue* value) {
-	bubble("read datadict");
+	if (hasGUI()) {
+		bubble("read datadict");
+	}
 
 	auto it = std::find_if(cbegin(localDicts), cend(localDicts),
 	                       [receivedVal = value](const auto& value) {
@@ -242,7 +322,8 @@ void Logical::localyStoreReadDataDict(DataDictionaryValue* value) {
 	if (it != std::cend(localDicts)) {
 		// We already buffered a dictionary with the same name, throw an error
 		delete value;   // NOLINT(cppcoreguidelines-owning-memory)
-		throw omnetpp::cRuntimeError("Logical received an already buffered datadict");
+		throw omnetpp::cRuntimeError("Logical received an already buffered datadict: \"%s\"",
+		                             value->getDdName());
 	}
 
 	localDicts.emplace_back(value);

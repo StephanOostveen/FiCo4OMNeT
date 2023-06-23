@@ -6,9 +6,10 @@
 #include "omnetpp/cmessage.h"
 #include "omnetpp/regmacros.h"
 #include <iterator>
+#include <utility>
 
 namespace FiCo4OMNeT {
-Define_Module(CanLySinkApp);
+Define_Module(CanLySinkApp);   // NOLINT
 
 CanLySinkApp::~CanLySinkApp() noexcept {
 	for (auto* frame : receivedFrames) {
@@ -25,13 +26,22 @@ void CanLySinkApp::initialize() {
 	softbufferLengthSignal = registerSignal("softbufferLength");
 
 	executionTime = par("executionTime").doubleValue();
-	selfmsg       = new omnetpp::cMessage{"CANLySinkApp execution finished"};
+	// NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+	selfmsg = new omnetpp::cMessage{"CANLySinkApp execution finished"};
+}
+
+void CanLySinkApp::registerFrame(unsigned int frameId, const std::string& busName) {
+	Enter_Method_Silent();
+	// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+	EV << "Registering to receive frame:" << frameId << " from bus: " << busName << "\n";
+	// std::pair<std::string, unsigned int> key{busName, frameId};
+	softwareBuffer.emplace(std::make_pair(busName, frameId), nullptr);
 }
 
 void CanLySinkApp::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->isSelfMessage()) {
 		// Execution of receiving can frames from the bus has finished.
-		delete msg;
+		delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 		handleSelfMsg();
 	} else if (msg->arrivedOn("getFrame$i")) {
 		// Logical/Application requests a dataframe, the requested frame id is in the msg.
@@ -39,7 +49,7 @@ void CanLySinkApp::handleMessage(omnetpp::cMessage* msg) {
 		handleFrameRequest(request);
 		// Delete is handled by handleFrameRequest
 	} else if (msg->arrivedOn("controllerIn")) {
-		delete msg;
+		delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 		throw omnetpp::cRuntimeError("CanLySinkApp shouldnt receive a controllerIn msg");
 	} else if (msg->arrivedOn("dataIn")) {
 		auto* frame = omnetpp::check_and_cast<CanDataFrame*>(msg);
@@ -48,17 +58,17 @@ void CanLySinkApp::handleMessage(omnetpp::cMessage* msg) {
 	} else if (msg->arrivedOn("scheduler$i")) {
 		auto* schedulerMsg = omnetpp::check_and_cast<SchedulerEvent*>(msg);
 		if (schedulerMsg->getState() == TaskState::Running) {
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			handleResume();
 		} else if (schedulerMsg->getState() == TaskState::Paused) {
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			handlePause();
 		} else {
-			delete msg;
+			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 			throw omnetpp::cRuntimeError("CANLySinkApp received illegal TaskState");
 		}
 	} else {
-		delete msg;
+		delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 		throw omnetpp::cRuntimeError("Received unhandled message");
 	}
 }
@@ -78,7 +88,8 @@ void CanLySinkApp::handleSelfMsg() {
 		    "CanLySinkApp received self message while not in running state");
 	}
 	for (auto* frame : receivedFrames) {
-		if (auto it = softwareBuffer.find(frame->getCanID()); it != std::end(softwareBuffer)) {
+		std::pair<std::string, unsigned int> key{frame->getBusName(), frame->getCanID()};
+		if (auto it = softwareBuffer.find(key); it != std::end(softwareBuffer)) {
 			auto readCount = it->second.getReadCount();
 			if (readCount == 0) {
 				// Old copy of frame was not read, signal overrun.
@@ -91,9 +102,11 @@ void CanLySinkApp::handleSelfMsg() {
 	}
 	receivedFrames.clear();
 	emit(softbufferLengthSignal, receivedFrames.size());
-	bubble("Updated buffered frames");
+	if (hasGUI()) {
+		bubble("Updated buffered frames");
+	}
 	state              = TaskState::Blocked;
-	auto* blockedFrame = new SchedulerEvent();
+	auto* blockedFrame = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 	blockedFrame->setState(TaskState::Blocked);
 	send(blockedFrame, "scheduler$o");
 }
@@ -104,29 +117,47 @@ void CanLySinkApp::handleSelfMsg() {
  * IDs should be registered before the simulation starts.
  */
 void CanLySinkApp::handleFrameRequest(FrameRequest* request) {
-	if (auto it = softwareBuffer.find(request->getFrameID()); it != std::cend(softwareBuffer)) {
-		auto* gate  = request->getArrivalGate();
-		auto* frame = it->second.read();
-		send(frame->dup(), gate->getOtherHalf());
+	std::pair<std::string, unsigned int> key{request->getBusName(), request->getFrameID()};
+	if (auto it = softwareBuffer.find(key); it != std::cend(softwareBuffer)) {
+		auto* gate = request->getArrivalGate();
+		if (auto* frame = it->second.read(); frame != nullptr) {
+			// A valid frame was received previously
+			send(frame->dup(), gate->getOtherHalf());
 
-		if (it->second.getReadCount() > 1) {
-			// Multiple reads occured on the same received frame.
-			emit(underrunSignal, frame->getCanID());
+			if (it->second.getReadCount() > 1) {
+				// Multiple reads occured on the same received frame.
+				emit(underrunSignal, frame->getCanID());
+			}
+		} else {
+			// No valid frame was received yet, create a dummy
+			// TODO: add dummy flag or something in the CANDataFrame
+			auto* dummy = new CanDataFrame();   // NOLINT(cppcoreguidelines-owning-memory)
+			dummy->setBusName(request->getBusName());
+			dummy->setCanID(request->getFrameID());
+			dummy->setRtr(false);
+			dummy->setPeriod(1.0);
+			send(dummy, gate->getOtherHalf());
 		}
-		delete request;
+		delete request;   // NOLINT(cppcoreguidelines-owning-memory)
 	} else {
-		delete request;
-		throw omnetpp::cRuntimeError("CanLySinkApp unregistered CAN ID request");
+		auto        id = request->getFrameID();
+		std::string busName{request->getBusName()};
+		delete request;   // NOLINT(cppcoreguidelines-owning-memory)
+		throw omnetpp::cRuntimeError(
+		    "CanLySinkApp unregistered CAN ID request for id: %u on bus:\"%s\"", id,
+		    busName.c_str());
 	}
 }
 
 void CanLySinkApp::handleIncomingFrame(CanDataFrame* frame) {
 	// Received frame from the CAN bus, store it temporarily until task completion
-	bubble("Received frame");
+	if (hasGUI()) {
+		bubble("Received frame");
+	}
 	receivedFrames.emplace_back(frame);
 	if (state == TaskState::Blocked) {
 		state          = TaskState::Ready;
-		auto* readyMsg = new SchedulerEvent();
+		auto* readyMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		readyMsg->setState(TaskState::Ready);
 		send(readyMsg, "scheduler$o");
 	}
@@ -135,7 +166,9 @@ void CanLySinkApp::handleIncomingFrame(CanDataFrame* frame) {
 }
 
 void CanLySinkApp::handleResume() {
-	bubble("resumed");
+	if (hasGUI()) {
+		bubble("resumed");
+	}
 	if (state == TaskState::Running) {
 		throw omnetpp::cRuntimeError("CANLySinkApp received resume while state was Running");
 	}
@@ -150,7 +183,9 @@ void CanLySinkApp::handleResume() {
 }
 
 void CanLySinkApp::handlePause() {
-	bubble("paused");
+	if (hasGUI()) {
+		bubble("paused");
+	}
 	if (state == TaskState::Ready) {
 		throw omnetpp::cRuntimeError("CanLySinkApp received resume while state was Ready");
 	}

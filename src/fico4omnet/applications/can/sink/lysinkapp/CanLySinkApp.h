@@ -10,6 +10,7 @@
 #include "FrameRequest_m.h"
 #include "ScheduleMsg_m.h"
 
+#include <cstddef>
 #include <unordered_map>
 #include <vector>
 
@@ -19,7 +20,7 @@ public:
 	~CanLySinkApp() noexcept override;
 
 	/* Register that the given frame should be received*/
-	void registerFrame();
+	void registerFrame(unsigned int frameId, const std::string& busName);
 
 protected:
 	void initialize() override;
@@ -33,13 +34,13 @@ private:
 
 		~BufferedFrame() noexcept { delete frame; }
 		BufferedFrame(const BufferedFrame& other)
-		    : frame(other.frame->dup())
+		    : frame(other.frame != nullptr ? other.frame->dup() : nullptr)
 		    , readCount(other.readCount) {}
 
 		BufferedFrame& operator=(const BufferedFrame& other) {
 			if (this != &other) {
 				delete frame;
-				frame     = other.frame->dup();
+				frame     = other.frame != nullptr ? other.frame->dup() : nullptr;
 				readCount = other.readCount;
 			}
 			return *this;
@@ -63,10 +64,12 @@ private:
 	void handlePause();
 	void handleSelfMsg();
 
-	TaskState                             state{TaskState::Blocked};
-	std::map<unsigned int, BufferedFrame> softwareBuffer{};
-	omnetpp::simtime_t                    executionTime{};
-	omnetpp::simtime_t                    executionTimeLeft{};
+	TaskState state{TaskState::Blocked};
+
+	std::map<std::pair<std::string, unsigned int>, BufferedFrame> softwareBuffer{};
+
+	omnetpp::simtime_t executionTime{};
+	omnetpp::simtime_t executionTimeLeft{};
 
 	omnetpp::simsignal_t rxDFSignal;
 	omnetpp::simsignal_t overrunSignal;    // Multiple writes without read

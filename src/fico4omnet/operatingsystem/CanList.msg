@@ -12,3 +12,7 @@ class CanDataFrameDefinition extends cOwnedObject {
 class CanList extends cOwnedObject {
     CanDataFrameDefinition definition[];
 }
+
+class DataDictList extends cOwnedObject {
+    DataDictionaryDefinition definition[];
+}

@@ -24,6 +24,7 @@ protected:
 private:
 	void parseCANInput();
 	void parseCANOutput();
+	void parseDDOutput();
 
 	void handleResume();
 	void handlePause();
@@ -46,13 +47,26 @@ private:
 	omnetpp::simtime_t executionTimeLeft{};
 
 	struct CanDefiniton {
-		CanDataFrameDefinition* definition;
-		int                     gateId;   // ID of the CAN Bus receiving/transmitting the CANMessage
+		CanDefiniton(const CanDataFrameDefinition* def, int id)
+		    : definition(def)
+		    , gateId(id) {}
+
+		// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+		const CanDataFrameDefinition* definition;
+		int gateId;   // ID of the CAN Bus receiving/transmitting the CANMessage
+
+		// NOLINTEND(misc-non-private-member-variables-in-classes)
 	};
 
 	struct DataDictDefinition {
-		DataDictionaryDefinition* definition;
-		int                       gateId;   // ID of the gate connecting to the DD module
+		DataDictDefinition(const DataDictionaryDefinition* def, int id)
+		    : definition(def)
+		    , gateId(id) {}
+		// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+		const DataDictionaryDefinition* definition;
+		int                             gateId;   // ID of the gate connecting to the DD module
+
+		// NOLINTEND(misc-non-private-member-variables-in-classes)
 	};
 
 	std::vector<CanDefiniton> canInput{};

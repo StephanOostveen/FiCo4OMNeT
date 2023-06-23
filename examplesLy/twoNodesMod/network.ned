@@ -2,15 +2,17 @@ package fico4omnet.examplesLy.twoNodesMod;
 
 import fico4omnet.bus.can.CanBus;
 import fico4omnet.nodes.can.LyPhysicalNode;
+import fico4omnet.examplesLy.VCUNode;
+import fico4omnet.examplesLy.SCUNode;
 
 network LyCanNetwork {
+    parameters:
     submodules:
-        bus: CanBus {
-            gates:
-                gate[2];
-        }
-        node[2]: LyPhysicalNode;
+        powertrain_can: CanBus;
+        VCU: VCUNode;
+        SCU: SCUNode;
+
     connections:
-        bus.gate[0] <--> node[0].gate++;
-        bus.gate[1] <--> node[1].gate++;
+        powertrain_can.gate++ <--> VCU.gate++;
+        powertrain_can.gate++ <--> SCU.gate++;
 }

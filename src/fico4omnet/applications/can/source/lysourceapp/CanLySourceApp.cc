@@ -95,6 +95,28 @@ void CanLySourceApp::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_
 
 void CanLySourceApp::registerFrame(unsigned int frameId, const char* busName) {
 	Enter_Method_Silent();
+
+	auto nrOfCanBusses = getParentModule()->getSubmoduleVectorSize("canDevice");
+	bool found         = false;
+	for (int i = 0; i < nrOfCanBusses; ++i) {
+		const auto*       device = getParentModule()->getSubmodule("canDevice", i);
+		const auto* const canBus =
+		    device->gate("gate$o")->getPathEndGate()->getOwnerModule()->getParentModule();
+
+		if (std::strcmp(busName, canBus->getName()) == 0) {
+			found      = true;
+			auto* port = omnetpp::check_and_cast<CanPortInput*>(
+			    device->getSubmodule("canNodePort")->getSubmodule("canPortInput"));
+			port->registerOutgoingDataFrame(frameId, this->gate("remoteIn"));
+			break;
+		} else {
+			throw omnetpp::cRuntimeError(R"(failed to find bus:"%s", found:"%s")", busName,
+			                             canBus->getName());
+		}
+	}
+	if (!found) {
+		throw omnetpp::cRuntimeError("failed to find bus:\"%s\"", busName);
+	}
 }
 
 int CanLySourceApp::frameToBus(const CanDataFrame* frame) {

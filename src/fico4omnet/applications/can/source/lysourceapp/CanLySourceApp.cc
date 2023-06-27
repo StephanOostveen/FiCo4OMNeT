@@ -1,5 +1,7 @@
 #include "CanLySourceApp.h"
 
+#include "CanDataFrame_m.h"
+#include "CanPortInput.h"
 #include "CanTrafficSourceAppBase.h"
 
 #include "ScheduleMsg_m.h"
@@ -14,6 +16,7 @@
 #include "omnetpp/simkerneldefs.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <iterator>
 #include <limits>
@@ -66,6 +69,9 @@ void CanLySourceApp::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_
 		if (this->getParentModule()->containsModule(srcModule)
 		    && std::strstr(srcModule->getNedTypeName(), "CanOutputBuffer") != nullptr) {
 			// src is a CanOutputBuffer from this cannode
+			// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+			EV << getFullPath() << " received a 'length=" << value << "' signal from cModule "
+			   << src->getFullPath() << "\n";
 			hardwareBufferLength = value;
 			if (state == TaskState::Blocked && value < maxHardwareBufferLength
 			    && 0 < bufferSize()) {
@@ -77,13 +83,13 @@ void CanLySourceApp::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_
 			}
 		} else {
 			// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-			EV << getFullPath() << " received a 'length' signal from cModule "
-			   << src->getFullPath();
+			EV << getFullPath() << " received a 'length' signal from cModule " << src->getFullPath()
+			   << "\n";
 		}
 	} else {
 		// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 		EV << getFullPath() << " received a 'length' signal from something that wasnt a cModule "
-		   << src->getFullPath();
+		   << src->getFullPath() << "\n";
 	}
 }
 

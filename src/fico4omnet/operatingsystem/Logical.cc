@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <string>
 
 namespace FiCo4OMNeT {
 Define_Module(Logical);   // NOLINT
@@ -138,6 +139,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 			// TODO: Task overrun
 			if (hasGUI()) {
 				bubble("Logical overrun");
+				EV << "Logical overrun: " << getFullPath() << "\n";
 			}
 		}
 		scheduleAfter(period, scheduleMsg);

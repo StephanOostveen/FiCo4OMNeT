@@ -34,7 +34,7 @@ void CanLySinkApp::registerFrame(unsigned int frameId, const std::string& busNam
 	Enter_Method_Silent();
 	// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 	EV << "Registering to receive frame:" << frameId << " from bus: " << busName << "\n";
-	// std::pair<std::string, unsigned int> key{busName, frameId};
+
 	softwareBuffer.emplace(std::make_pair(busName, frameId), nullptr);
 }
 

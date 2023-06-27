@@ -41,7 +41,9 @@ cplusplus {{
 //
 packet CanDataFrame{
     string displayString;
+	string busName;
 	unsigned int canID;			// ID of the message
 	bool rtr;			// true if remote-frame
 	double period;			// Periodicy of the message
+	simtime_t generationTime;
 }

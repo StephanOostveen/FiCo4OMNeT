@@ -12,7 +12,7 @@ module SCUNode extends LyPhysicalNode {
         dd[2].name = "power";
 
         logical[0].name = "SSC";
-        logical[0].priority = 6; // 6 is lowest task prio
+        logical[0].priority = 7; // 6 is lowest task prio
         // {canID: x, sizeInBytes: y, bus: "name", dd: [{ddName: "name", bitSize: z}]}
         logical[0].canInput = FiCo4OMNeT::CanList{definition: [
             {canID: 1, sizeInBytes: 1, bus: "powertrain_can", dd: [
@@ -30,7 +30,7 @@ module SCUNode extends LyPhysicalNode {
         //logical[0].dataDictOut = default, does not generate other datadicts
 
         logical[1].name = "PowerController";
-        logical[1].priority = 7; // 6 is lowest task prio
+        logical[1].priority = 6; // 6 is lowest task prio
         //logical[1].canInput = default, does not read CAN messages
         //logical[1].canOutput = default, does not write CAN messages
         Logical[1].dataDictOut = FiCo4OMNeT::DataDictList{definition: [

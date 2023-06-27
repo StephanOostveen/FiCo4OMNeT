@@ -155,6 +155,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 		}
 		writeDataDicts();
 		sendCANFrames();
+		clearReceivedDataDicts();   // Clears the datadicts that originate locally
 
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
@@ -288,6 +289,7 @@ void Logical::sendCANFrames() {
 		canFrame->setCanID(canDef.definition->getCanID());
 		canFrame->setRtr(false);
 		canFrame->setPeriod(1.0);
+		canFrame->setGenerationTime(omnetpp::simTime());
 		send(canFrame, canDef.gateId);
 	}
 }
@@ -323,12 +325,20 @@ void Logical::localyStoreReadDataDict(DataDictionaryValue* value) {
 
 	if (it != std::cend(localDicts)) {
 		// We already buffered a dictionary with the same name, throw an error
+		std::string ddName(value->getDdName());
 		delete value;   // NOLINT(cppcoreguidelines-owning-memory)
 		throw omnetpp::cRuntimeError("Logical received an already buffered datadict: \"%s\"",
-		                             value->getDdName());
+		                             ddName.c_str());
 	}
 
 	localDicts.emplace_back(value);
 	minimalDependencyTime = std::min(minimalDependencyTime, value->getMinimalDependencyTime());
+}
+
+void Logical::clearReceivedDataDicts() {
+	for (auto* ddValue : localDicts) {
+		delete ddValue;
+	}
+	localDicts.clear();
 }
 }   // namespace FiCo4OMNeT

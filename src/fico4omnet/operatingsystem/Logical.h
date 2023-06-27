@@ -34,6 +34,7 @@ private:
 
 	void writeDataDicts();
 	void sendCANFrames();
+	void clearReceivedDataDicts();
 
 	void localyStoreReceivedFrame(CanDataFrame* frame);
 	void localyStoreReadDataDict(DataDictionaryValue* value);

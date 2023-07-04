@@ -59,6 +59,7 @@ public:
      */
     void putFrame(cMessage* msg) override;
 
+    void registerFrame(unsigned int);
 protected:
     /**
      * @brief Initialization of the module.

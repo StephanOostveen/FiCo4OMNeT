@@ -109,18 +109,35 @@ void CanLySourceApp::registerFrame(unsigned int frameId, const char* busName) {
 			    device->getSubmodule("canNodePort")->getSubmodule("canPortInput"));
 			port->registerOutgoingDataFrame(frameId, this->gate("remoteIn"));
 			break;
-		} else {
-			throw omnetpp::cRuntimeError(R"(failed to find bus:"%s", found:"%s")", busName,
-			                             canBus->getName());
 		}
 	}
 	if (!found) {
 		throw omnetpp::cRuntimeError("failed to find bus:\"%s\"", busName);
 	}
+	// TODO: merge identical loops
+	found = false;
+	for (int i = 0; i < gateSize("out"); ++i) {
+		auto* outGate     = gate("out", i);
+		auto* endGate     = outGate->getPathEndGate();   // CanOutputBuffer.in[0]
+		auto* lyCanDevice = endGate->getOwnerModule()->getParentModule();
+		auto* canBus =
+		    lyCanDevice->gate("gate$o")->getPathEndGate()->getOwnerModule()->getParentModule();
+		if (std::strcmp(busName, canBus->getName()) == 0) {
+			found             = true;
+			busIndex[busName] = outGate->getId();
+			break;
+		}
+	}
+	if (!found) {
+		throw omnetpp::cRuntimeError("failed to find bus from the out[] gate:\"%s\"", busName);
+	}
 }
 
-int CanLySourceApp::frameToBus(const CanDataFrame* frame) {
-	return 0;   // TODO implement
+int CanLySourceApp::frameToGateId(const CanDataFrame* frame) {
+	if (busIndex.find(frame->getBusName()) != std::cend(busIndex)) {
+		return busIndex[frame->getBusName()];
+	}
+	throw omnetpp::cRuntimeError("Couldnt find gate for busname:\"%s\"", frame->getBusName());
 }
 
 void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
@@ -152,7 +169,7 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 		if (hasGUI()) {
 			bubble("sent buffered frame to hardware");
 		}
-		send(frame, "out", frameToBus(frame));
+		send(frame, frameToGateId(frame));
 		emit(sentDFSignal, frame);
 		emit(bufferLengthSignal, bufferSize());
 
@@ -215,7 +232,7 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 		if (hasGUI()) {
 			bubble("sent frame to hardware");
 		}
-		send(frame, "out", frameToBus(frame));
+		send(frame, frameToGateId(frame));
 		emit(sentDFSignal, frame);
 	} else {
 		// We need to store the message in a software buffer

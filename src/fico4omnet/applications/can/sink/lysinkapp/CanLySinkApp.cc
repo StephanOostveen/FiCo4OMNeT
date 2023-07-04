@@ -1,10 +1,12 @@
 #include "CanLySinkApp.h"
 #include "CanDataFrame_m.h"
+#include "CanInputBuffer.h"
 #include "ScheduleMsg_m.h"
 #include "omnetpp/cexception.h"
 #include "omnetpp/checkandcast.h"
 #include "omnetpp/cmessage.h"
 #include "omnetpp/regmacros.h"
+#include <cstring>
 #include <iterator>
 #include <utility>
 
@@ -36,12 +38,30 @@ void CanLySinkApp::registerFrame(unsigned int frameId, const std::string& busNam
 	EV << "Registering to receive frame:" << frameId << " from bus: " << busName << "\n";
 
 	softwareBuffer.emplace(std::make_pair(busName, frameId), nullptr);
+
+	auto nrOfCanBusses = getParentModule()->getSubmoduleVectorSize("canDevice");
+	bool found         = false;
+	for (int i = 0; i < nrOfCanBusses; ++i) {
+		const auto*       device = getParentModule()->getSubmodule("canDevice", i);
+		const auto* const canBus =
+		    device->gate("gate$o")->getPathEndGate()->getOwnerModule()->getParentModule();
+
+		if (std::strcmp(busName.c_str(), canBus->getName()) == 0) {
+			found = true;
+			auto* buffer =
+			    omnetpp::check_and_cast<CanInputBuffer*>(device->getSubmodule("bufferIn"));
+			buffer->registerFrame(frameId);
+			break;
+		}
+	}
+	if (!found) {
+		throw omnetpp::cRuntimeError("failed to find bus:\"%s\"", busName.c_str());
+	}
 }
 
 void CanLySinkApp::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->isSelfMessage()) {
 		// Execution of receiving can frames from the bus has finished.
-		delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
 		handleSelfMsg();
 	} else if (msg->arrivedOn("getFrame$i")) {
 		// Logical/Application requests a dataframe, the requested frame id is in the msg.
@@ -130,12 +150,13 @@ void CanLySinkApp::handleFrameRequest(FrameRequest* request) {
 			}
 		} else {
 			// No valid frame was received yet, create a dummy
-			// TODO: add dummy flag or something in the CANDataFrame
+
 			auto* dummy = new CanDataFrame();   // NOLINT(cppcoreguidelines-owning-memory)
 			dummy->setBusName(request->getBusName());
 			dummy->setCanID(request->getFrameID());
 			dummy->setRtr(false);
-			dummy->setPeriod(1.0);
+			dummy->setPeriod(0.0);
+			dummy->setGenerationTime(0);   // Zero signals not received yet
 			send(dummy, gate->getOtherHalf());
 		}
 		delete request;   // NOLINT(cppcoreguidelines-owning-memory)
@@ -152,8 +173,11 @@ void CanLySinkApp::handleFrameRequest(FrameRequest* request) {
 void CanLySinkApp::handleIncomingFrame(CanDataFrame* frame) {
 	// Received frame from the CAN bus, store it temporarily until task completion
 	if (hasGUI()) {
-		bubble("Received frame");
+		std::string msg("Received frame from bus: ");
+		msg += frame->getBusName();
+		bubble(msg.c_str());
 	}
+
 	receivedFrames.emplace_back(frame);
 	if (state == TaskState::Blocked) {
 		state          = TaskState::Ready;

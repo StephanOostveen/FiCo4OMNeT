@@ -33,7 +33,7 @@ module SCUNode extends LyPhysicalNode {
         logical[1].priority = 6; // 6 is lowest task prio
         //logical[1].canInput = default, does not read CAN messages
         //logical[1].canOutput = default, does not write CAN messages
-        Logical[1].dataDictOut = FiCo4OMNeT::DataDictList{definition: [
+        logical[1].dataDictOut = FiCo4OMNeT::DataDictList{definition: [
             {ddName: "voltage", bitSize: 8},
             {ddName: "current", bitSize: 8}
         ]};

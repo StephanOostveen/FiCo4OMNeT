@@ -45,5 +45,5 @@ packet CanDataFrame{
 	unsigned int canID;			// ID of the message
 	bool rtr;			// true if remote-frame
 	double period;			// Periodicy of the message
-	simtime_t generationTime;
+	simtime_t generationTime; // Generation time of zero means not received yet
 }

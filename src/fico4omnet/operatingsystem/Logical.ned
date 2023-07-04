@@ -2,6 +2,7 @@ package fico4omnet.operatingsystem;
 
 import fico4omnet.operatingsystem.ITask;
 import fico4omnet.operatingsystem.CanList;
+import fico4omnet.operatingsystem.DataDictList;
 
 simple Logical like ITask {
     parameters:
@@ -14,6 +15,8 @@ simple Logical like ITask {
         int priority;
         string name;
 
+        volatile double bitStuffingPercentage = uniform(0,1);
+        
         object canInput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames read by this logical
         object canOutput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames transmitted
         object dataDictOut = default(FiCo4OMNeT::DataDictList{definition: []}); //Datadicts written by this logical that are not received from CAN

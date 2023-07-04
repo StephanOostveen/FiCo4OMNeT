@@ -8,7 +8,9 @@
 #include "omnetpp/cmessage.h"
 #include "omnetpp/simtime_t.h"
 
+#include <map>
 #include <optional>
+#include <string>
 #include <unordered_map>
 
 namespace FiCo4OMNeT {
@@ -38,13 +40,14 @@ private:
 	void handleResume();
 	void handlePause();
 
-	int frameToBus(const CanDataFrame* frame);
+	int frameToGateId(const CanDataFrame* frame);
 
 	long                        bufferSize() const;
 	std::optional<unsigned int> nextFrame() const;
 
 	TaskState                             state{TaskState::Blocked};
 	std::map<unsigned int, CanDataFrame*> softwareBuffer{};
+	std::map<std::string, int>            busIndex{};
 	omnetpp::uintval_t                    hardwareBufferLength{0};
 	omnetpp::uintval_t                    maxHardwareBufferLength{};
 	omnetpp::simtime_t                    period{};

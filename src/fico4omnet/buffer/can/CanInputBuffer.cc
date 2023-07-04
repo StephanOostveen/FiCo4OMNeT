@@ -29,6 +29,7 @@
 #include "fico4omnet/buffer/can/CanInputBuffer.h"
 
 #include "fico4omnet/linklayer/can/CanPortInput.h"
+#include "omnetpp/checkandcast.h"
 
 namespace FiCo4OMNeT {
 
@@ -37,6 +38,12 @@ Define_Module(CanInputBuffer);
 void CanInputBuffer::initialize(){
     registerIncomingDataFramesAtPort();
     CanBuffer::initialize();
+}
+
+void CanInputBuffer::registerFrame(unsigned int frameId) {
+    auto* port = omnetpp::check_and_cast<CanPortInput*> (getParentModule()->getSubmodule(
+            "canNodePort")->getSubmodule("canPortInput"));
+    port->registerIncomingDataFrame(frameId, gate("directIn"));
 }
 
 void CanInputBuffer::registerIncomingDataFramesAtPort() {

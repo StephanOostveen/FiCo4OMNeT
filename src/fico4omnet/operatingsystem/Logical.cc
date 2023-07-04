@@ -11,12 +11,14 @@
 #include "omnetpp/cexception.h"
 #include "omnetpp/checkandcast.h"
 #include "omnetpp/cmessage.h"
+#include "omnetpp/cpacket.h"
 #include "omnetpp/csimulation.h"
 #include "omnetpp/regmacros.h"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <iterator>
 #include <string>
 
 namespace FiCo4OMNeT {
@@ -25,9 +27,7 @@ Define_Module(Logical);   // NOLINT
 Logical::~Logical() noexcept {
 	cancelAndDelete(executionMsg);
 	cancelAndDelete(scheduleMsg);
-	for (auto* dd : receivedFrameDicts) {
-		delete dd;   // NOLINT(cppcoreguidelines-owning-memory)
-	}
+
 	for (auto* dd : localDicts) {
 		delete dd;   // NOLINT(cppcoreguidelines-owning-memory)
 	}
@@ -40,7 +40,8 @@ void Logical::initialize() {
 	parseCANInput();
 	parseCANOutput();
 	parseDDOutput();
-
+	EV << getFullPath() << " receives: " << canBusOutputDicts.size()
+	   << " datadicts, generates: " << localOutputDicts.size() << '\n';
 	executionMsg = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
 	scheduleMsg  = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
 	scheduleAt(0, scheduleMsg);
@@ -61,8 +62,12 @@ void Logical::parseCANInput() {
 
 		// create datastructure for efficiently unpacking a frame into the datadicts
 		const auto ddSize = frameDefinition.getDdArraySize();
+
+		unsigned bitSum = 0;
 		for (size_t j = 0; j < ddSize; ++j) {
 			const auto& ddDefinition = frameDefinition.getDd(j);
+
+			bitSum += ddDefinition.getBitSize();
 
 			const int ddVectorSize = gateSize("setDatadict");
 			bool      found        = false;
@@ -83,6 +88,12 @@ void Logical::parseCANInput() {
 				                             ddDefinition.getDdName());
 			}
 		}
+
+		if (bitSum > frameDefinition.getSizeInBytes() * 8) {
+			throw omnetpp::cRuntimeError(
+			    "Sum of DD bits was higher than nr of bytes for canmessage id:%u on bus:%s",
+			    frameDefinition.getCanID(), frameDefinition.getBus());
+		}
 	}
 }
 
@@ -91,19 +102,33 @@ void Logical::parseCANOutput() {
 	const auto        size = ptr->getDefinitionArraySize();
 
 	const int gateId = gate("frameOut")->getId();
+
+	unsigned bitsum = 0;
 	for (std::size_t i = 0; i < size; ++i) {
 		const auto& frameDefinition = ptr->getDefinition(i);
 		auto* const sourceAppModule =
 		    omnetpp::check_and_cast<CanLySourceApp*>(getParentModule()->getSubmodule("sourceApp"));
 		sourceAppModule->registerFrame(frameDefinition.getCanID(), frameDefinition.getBus());
 		canOutput.emplace_back(&frameDefinition, gateId);
+
+		auto ddSize = frameDefinition.getDdArraySize();
+		for (std::size_t j = 0; j < ddSize; ++j) {
+			const auto& ddDef = frameDefinition.getDd(j);
+			bitsum += ddDef.getBitSize();
+		}
+		if (bitsum > frameDefinition.getSizeInBytes() * 8) {
+			throw omnetpp::cRuntimeError(
+			    "Sum of DD bits was higher than nr of bytes for canmessage id:%u on bus:%s",
+			    frameDefinition.getCanID(), frameDefinition.getBus());
+		}
 	}
 }
 
 void Logical::parseDDOutput() {
-	const auto* const ptr =
-	    omnetpp::check_and_cast<const DataDictList*>(par("dataDictOut").objectValue());
-	const auto size = ptr->getDefinitionArraySize();
+	const auto&       ddOut = par("dataDictOut");
+	const auto* const ptr   = omnetpp::check_and_cast<const DataDictList*>(ddOut.objectValue());
+	const auto        size  = ptr->getDefinitionArraySize();
+	EV << getFullPath() << " dataDictOut array size: " << size << "\n";
 	for (std::size_t i = 0; i < size; ++i) {
 		const auto& ddDefinition = ptr->getDefinition(i);
 
@@ -252,21 +277,21 @@ void Logical::writeDataDicts() {
 	const auto generationTime = omnetpp::simTime();
 	// Write the datadicts that were received from CAN, they are simply forwarded and hence their
 	// timestamp doesnt change
-	for (auto* dd : receivedFrameDicts) {
+	for (const auto& dd : receivedFrameDicts) {
 		// Find the output gate to send the received datadict to as is.
 		auto it = std::find_if(cbegin(canBusOutputDicts), cend(canBusOutputDicts),
 		                       [&dd](const auto& ddDef) {
 			                       const auto* const name = ddDef.definition->getDdName();
-			                       return 0 == std::strcmp(dd->getDdName(), name);
+			                       return 0 == std::strcmp(dd.getDdName(), name);
 		                       });
 		if (it == cend(canBusOutputDicts)) {
 			throw omnetpp::cRuntimeError(
 			    "Logical failed to find output gate for a datadict received from CAN");
 		}
 		// Set the generation time to the current time.
-		dd->setGenerationTime(generationTime);
-		send(dd->dup(), it->gateId);
-		delete dd;   // NOLINT(cppcoreguidelines-owning-memory)
+		auto* copy = dd.dup();
+		copy->setGenerationTime(generationTime);
+		send(copy, it->gateId);
 	}
 	receivedFrameDicts.clear();
 
@@ -283,15 +308,60 @@ void Logical::writeDataDicts() {
 void Logical::sendCANFrames() {
 	for (const auto& canDef : canOutput) {
 		auto* canFrame = new CanDataFrame();   // NOLINT(cppcoreguidelines-owning-memory)
-		// TODO: Populate CANDataFrame with the Datadicts and generation/minimaldependency time.
+
 		canFrame->setDisplayString("");
 		canFrame->setBusName(canDef.definition->getBus());
 		canFrame->setCanID(canDef.definition->getCanID());
 		canFrame->setRtr(false);
-		canFrame->setPeriod(1.0);
+		canFrame->setPeriod(0.0);
 		canFrame->setGenerationTime(omnetpp::simTime());
+
+		auto dataFieldByteLength = canDef.definition->getSizeInBytes();
+		// Calculate the nr of header, stuffing and footer bits for a given fieldlength in bytes
+		auto frameOverheadBits = calculateOverHead(dataFieldByteLength);
+		canFrame->setBitLength(frameOverheadBits);
+		auto* payload = createFramePayload(canDef.definition);
+		payload->setTimestamp();
+		payload->setByteLength(dataFieldByteLength);
+		canFrame->encapsulate(payload);
 		send(canFrame, canDef.gateId);
 	}
+}
+
+DataDictionaryValueList* Logical::createFramePayload(const CanDataFrameDefinition* canDef) {
+	auto* values = new DataDictionaryValueList;   // NOLINT(cppcoreguidelines-owning-memory)
+
+	for (std::size_t i = 0; i < canDef->getDdArraySize(); ++i) {
+		const auto& ddDef = canDef->getDd(i);
+
+		auto it = std::find_if(std::cbegin(localDicts), std::cend(localDicts),
+		                       [&ddDef](const auto* receivedDDValue) {
+			                       const auto* const name = ddDef.getDdName();
+			                       return 0 == std::strcmp(receivedDDValue->getDdName(), name);
+		                       });
+		if (it != std::cend(localDicts)) {
+			values->appendValue(**it);
+		} else {
+			DataDictionaryValue value{};
+			value.setDdName(ddDef.getDdName());
+			value.setGenerationTime(omnetpp::simTime());
+			value.setMinimalDependencyTime(minimalDependencyTime);
+			values->appendValue(value);
+		}
+	}
+	return values;
+}
+
+unsigned Logical::calculateOverHead(unsigned dataLength) {
+	// Assume we only use CAN 2.0B with 11 bit identifier messages
+	return DataFrameControlBits + calculateStuffingBits(dataLength);
+}
+
+unsigned int Logical::calculateStuffingBits(unsigned int dataLength) {
+	// Get the stuffing percentage for this message, draw from a uniform distribution
+	auto bitStuffingPercentage = par("bitStuffingPercentage").doubleValue();
+	return static_cast<unsigned int>(((ControlBitsEligibleForStuffing + (dataLength * 8) - 1) / 4)
+	                                 * bitStuffingPercentage);
 }
 
 /**
@@ -303,8 +373,20 @@ void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
 		bubble("read frame");
 	}
 
-	// TODO: Unpack Datadicts and change minimalDependency time accordingly.
+	if (frame->hasEncapsulatedPacket()) {
+		const auto* list =
+		    omnetpp::check_and_cast<DataDictionaryValueList*>(frame->getEncapsulatedPacket());
 
+		for (std::size_t i = 0; i < list->getValueArraySize(); ++i) {
+			const auto& value = list->getValue(i);
+			receivedFrameDicts.emplace_back(value);
+			minimalDependencyTime =
+			    std::min(minimalDependencyTime, value.getMinimalDependencyTime());
+		}
+	} else {
+		// TODO: Startup effect, how to handle properly?
+		EV << getFullPath() << " received a CAN frame without payload\n";
+	}
 	delete frame;   // NOLINT(cppcoreguidelines-owning-memory)
 }
 

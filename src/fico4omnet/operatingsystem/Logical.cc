@@ -69,10 +69,10 @@ void Logical::parseCANInput() {
 
 			bitSum += ddDefinition.getBitSize();
 
-			const int ddVectorSize = gateSize("setDatadict");
+			const int ddVectorSize = gateSize("setDataDict");
 			bool      found        = false;
 			for (int k = 0; k < ddVectorSize; ++k) {
-				const auto* const ddGate   = gate("setDatadict", k);
+				const auto* const ddGate   = gate("setDataDict", k);
 				const auto* const ddModule = ddGate->getPathEndGate()->getOwnerModule();
 				const auto* const name     = ddModule->par("name").stringValue();
 				if (0 == std::strcmp(name, ddDefinition.getDdName())) {
@@ -132,10 +132,10 @@ void Logical::parseDDOutput() {
 	for (std::size_t i = 0; i < size; ++i) {
 		const auto& ddDefinition = ptr->getDefinition(i);
 
-		const int ddVectorSize = gateSize("setDatadict");
+		const int ddVectorSize = gateSize("setDataDict");
 		bool      found        = false;
 		for (int k = 0; k < ddVectorSize; ++k) {
-			const auto* const ddGate   = gate("setDatadict", k);
+			const auto* const ddGate   = gate("setDataDict", k);
 			const auto* const ddModule = ddGate->getPathEndGate()->getOwnerModule();
 			const auto* const name     = ddModule->par("name").stringValue();
 			if (0 == std::strcmp(name, ddDefinition.getDdName())) {
@@ -340,8 +340,10 @@ DataDictionaryValueList* Logical::createFramePayload(const CanDataFrameDefinitio
 			                       return 0 == std::strcmp(receivedDDValue->getDdName(), name);
 		                       });
 		if (it != std::cend(localDicts)) {
+			// Data dict was received from a local Logical
 			values->appendValue(**it);
 		} else {
+			// Other cases, dd is created by this logical, maybe others??
 			DataDictionaryValue value{};
 			value.setDdName(ddDef.getDdName());
 			value.setGenerationTime(omnetpp::simTime());

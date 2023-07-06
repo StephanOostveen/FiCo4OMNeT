@@ -12,7 +12,9 @@ void DataDictionary::initialize() {}
 
 void DataDictionary::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->arrivedOn("set")) {
-		EV << getFullName() << " received a new value";
+		if (hasGUI()) {
+			bubble("received a new value");
+		}
 		auto* ddValue         = omnetpp::check_and_cast<DataDictionaryValue*>(msg);
 		generationTime        = ddValue->getGenerationTime();
 		minimalDependencyTime = ddValue->getMinimalDependencyTime();

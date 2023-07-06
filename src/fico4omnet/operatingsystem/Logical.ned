@@ -25,6 +25,6 @@ simple Logical like ITask {
         output frameOut @labels(DataFrame); // Transmit a frame on the CAN bus
         inout getFrame; // Read a received CAN frame
         inout getDataDict[]; // Read the value of a stored datadict
-        output setDatadict[]; // Write to a datadict
+        output setDataDict[]; // Write to a datadict
         inout scheduler @labels(SchedulerEvent);
 }

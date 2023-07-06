@@ -29,6 +29,6 @@ module VCUNode extends LyPhysicalNode {
         ]};
         
     connections:
-        logical[0].setDatadict++ --> dd[0].set;
-        logical[0].setDatadict++ --> dd[1].set;
+        logical[0].setDataDict++ --> dd[0].set;
+        logical[0].setDataDict++ --> dd[1].set;
 }

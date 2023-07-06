@@ -41,10 +41,10 @@ module SCUNode extends LyPhysicalNode {
         // Logical[0] (ssc) gets voltage and current but sets power
         logical[0].getDataDict++ <--> dd[0].get++;
         logical[0].getDataDict++ <--> dd[1].get++;
-        logical[0].setDatadict++ --> dd[2].set;
+        logical[0].setDataDict++ --> dd[2].set;
 
         // Logical[1] (powercontroller) gets power but sets voltage and current
-        logical[1].setDatadict++ --> dd[0].set;
-        logical[1].setDatadict++ --> dd[1].set;
+        logical[1].setDataDict++ --> dd[0].set;
+        logical[1].setDataDict++ --> dd[1].set;
         logical[1].getDataDict++ <--> dd[2].get++;
 }

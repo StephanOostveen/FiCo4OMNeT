@@ -9,13 +9,13 @@ simple Logical like ITask {
         @class(Logical);
         @display("i=block/app;t=$name");
 
-        double period @unit(s)= default(50ms);
-        double executionTime @unit(s) = default(0.1ms);
+        double period @unit(s);
+        double executionTime @unit(s);
         bool periodic = default(true);
         int priority;
         string name;
 
-        volatile double bitStuffingPercentage = uniform(0,1);
+        volatile double bitStuffingPercentage;
         
         object canInput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames read by this logical
         object canOutput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames transmitted

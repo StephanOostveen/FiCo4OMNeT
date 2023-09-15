@@ -9,7 +9,7 @@ module LyCanDevice {
     parameters:
         @display("i=device/modem");
         //percentage of errors
-        int errorperc = default(0);
+        int errorperc;
         
     gates:
         inout gate;

@@ -29,21 +29,21 @@ simple CanLySourceApp like ISourceApplication, ITask {
     
         //Needed for inheriting from the CanTrafficSourceAppBase
         //The Data Frames ID(s) - String parameter (int) separated with commas
-        string idDataFrames = default("0");					
+        string idDataFrames = default("");					
         //data Frame period(s) for sending of messages - String parameter (int) separated with commas - unit: s 
-        string periodicityDataFrames = default("0");		
+        string periodicityDataFrames = default("");		
         //Datafield-length - String parameter (int) separated with commas - unit: byte
-        string dataLengthDataFrames = default("0");			
+        string dataLengthDataFrames = default("");			
         //Offset for the first transmission of the data frames - String parameter (double) separated with commas - unit: s
-        string initialDataFrameOffset = default("0");
+        string initialDataFrameOffset = default("");
         //The Remote Frame ID(s) - String parameter (int) separated with commas
-        string idRemoteFrames = default("0");	
+        string idRemoteFrames = default("");	
         //Remote Frame period(s) for sending of messages - String parameter (int) separated with commas - unit: s
-        string periodicityRemoteFrames = default("0");
+        string periodicityRemoteFrames = default("");
         //Datafield-length - String parameter (int) separated with commas - unit: byte
-        string dataLengthRemoteFrames = default("0");		
+        string dataLengthRemoteFrames = default("");		
         //Offset for the first transmission of the remote frames - String parameter (double) separated with commas - unit: s
-        string initialRemoteFrameOffset = default("0");		
+        string initialRemoteFrameOffset = default("");		
         //Inaccuracy for the node which is added to the schedule time for each frame. 
         double periodInaccurracy @unit(s) = default(0s);
     gates:

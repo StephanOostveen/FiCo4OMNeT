@@ -65,7 +65,7 @@ simple CanInputBuffer like ICanBuffer
         //Comma seperated list of gates where the frames of the buffer are delivered
         string destination_gates = default("sinkApp.dataIn");
         bool MOB = default(false); 						//If true frames with the same ID will be overwritten.
-        string idIncomingFrames = default("0");			// The Incoming Frame ID(s) - String parameter (int) separated with commas
+        string idIncomingFrames = default("");			// The Incoming Frame ID(s) - String parameter (int) separated with commas
 
     gates:
         //The buffers Input

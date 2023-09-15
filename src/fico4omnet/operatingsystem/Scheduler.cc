@@ -59,13 +59,14 @@ int Scheduler::numInitStages() const {
 
 void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->isSelfMessage() && !isExecuting) {
-		// Scheduler needs to execute, pause the running task, messages "schedule" themselves
+		// Scheduler needs to execute, pause the running task, tasks "schedule" themselves
 		if (running.has_value()) {
 			auto* pauseMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 			pauseMsg->setState(TaskState::Paused);
 			send(pauseMsg, running->outGate);
 
 			paused.emplace_back(*running);
+			running = std::nullopt;
 		}
 		isExecuting = true;
 		scheduleAfter(executionTime, selfmsg);
@@ -86,16 +87,28 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 				return priorityLevel == element.priority;
 			};
 		};
-		if (highestReady->priority < highestPaused->priority) {
-			// We need to schedule a paused task
+		if (highestReady != std::cend(ready) && highestPaused != std::cend(paused)) {
+			EV << "Highest ready: " << highestReady->priority
+			   << " Highest paused: " << highestPaused->priority << "\n";
+			if (highestReady->priority < highestPaused->priority) {
+				// We need to schedule a paused task
+				std::copy_if(cbegin(paused), cend(paused), std::back_inserter(eligibleTasks),
+				             copyComp(highestPaused->priority));
+			} else if (highestPaused->priority < highestReady->priority) {
+				std::copy_if(cbegin(ready), cend(ready), std::back_inserter(eligibleTasks),
+				             copyComp(highestReady->priority));
+			} else if (highestPaused->priority == highestReady->priority) {
+				std::copy_if(cbegin(paused), cend(paused), std::back_inserter(eligibleTasks),
+				             copyComp(highestPaused->priority));
+				std::copy_if(cbegin(ready), cend(ready), std::back_inserter(eligibleTasks),
+				             copyComp(highestReady->priority));
+			}
+		} else if (highestReady == std::cend(ready) && highestPaused != std::cend(paused)) {
+			EV << " Highest paused: " << highestPaused->priority << "\n";
 			std::copy_if(cbegin(paused), cend(paused), std::back_inserter(eligibleTasks),
 			             copyComp(highestPaused->priority));
-		} else if (highestPaused->priority < highestReady->priority) {
-			std::copy_if(cbegin(ready), cend(ready), std::back_inserter(eligibleTasks),
-			             copyComp(highestReady->priority));
-		} else if (highestPaused == highestReady) {
-			std::copy_if(cbegin(paused), cend(paused), std::back_inserter(eligibleTasks),
-			             copyComp(highestPaused->priority));
+		} else if (highestReady != std::cend(ready) && highestPaused == std::cend(paused)) {
+			EV << "Highest ready: " << highestReady->priority << "\n";
 			std::copy_if(cbegin(ready), cend(ready), std::back_inserter(eligibleTasks),
 			             copyComp(highestReady->priority));
 		}
@@ -104,7 +117,8 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			const auto  index = intuniform(0, eligibleTasks.size() - 1);
 			const auto& task  = eligibleTasks.at(index);
 
-			// find the task in the ready or paused queues, remove it and put it in the running slot
+			// find the task in the ready or paused queues, remove it and put it in the running
+			// slot
 			auto taskEquality = [&task](const auto& e) { return task.inGate == e.inGate; };
 
 			if (auto itReady = std::find_if(cbegin(ready), cend(ready), taskEquality);

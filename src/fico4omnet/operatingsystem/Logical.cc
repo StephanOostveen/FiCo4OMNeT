@@ -103,7 +103,6 @@ void Logical::parseCANOutput() {
 
 	const int gateId = gate("frameOut")->getId();
 
-	unsigned bitsum = 0;
 	for (std::size_t i = 0; i < size; ++i) {
 		const auto& frameDefinition = ptr->getDefinition(i);
 		auto* const sourceAppModule =
@@ -111,7 +110,8 @@ void Logical::parseCANOutput() {
 		sourceAppModule->registerFrame(frameDefinition.getCanID(), frameDefinition.getBus());
 		canOutput.emplace_back(&frameDefinition, gateId);
 
-		auto ddSize = frameDefinition.getDdArraySize();
+		auto     ddSize = frameDefinition.getDdArraySize();
+		unsigned bitsum = 0;
 		for (std::size_t j = 0; j < ddSize; ++j) {
 			const auto& ddDef = frameDefinition.getDd(j);
 			bitsum += ddDef.getBitSize();
@@ -128,7 +128,7 @@ void Logical::parseDDOutput() {
 	const auto&       ddOut = par("dataDictOut");
 	const auto* const ptr   = omnetpp::check_and_cast<const DataDictList*>(ddOut.objectValue());
 	const auto        size  = ptr->getDefinitionArraySize();
-	EV << getFullPath() << " dataDictOut array size: " << size << "\n";
+	EV << " dataDictOut array size: " << size << "\n";
 	for (std::size_t i = 0; i < size; ++i) {
 		const auto& ddDefinition = ptr->getDefinition(i);
 
@@ -156,6 +156,7 @@ void Logical::parseDDOutput() {
 void Logical::handleMessage(omnetpp::cMessage* msg) {
 	if (msg->isSelfMessage() && msg == scheduleMsg) {
 		if (state == TaskState::Blocked) {
+			EV << omnetpp::simTime() << " Was Blocked, became ready\n";
 			state          = TaskState::Ready;
 			auto* readyMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 			readyMsg->setState(TaskState::Ready);
@@ -164,19 +165,22 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 			// TODO: Task overrun
 			if (hasGUI()) {
 				bubble("Logical overrun");
-				EV << "Logical overrun: " << getFullPath() << "\n";
+				EV << omnetpp::simTime() << "Logical overrun: " << getFullPath() << "\n";
 			}
 		}
 		scheduleAfter(period, scheduleMsg);
 	} else if (msg->isSelfMessage() && msg == executionMsg) {
 		// Execution finished
 		if (hasGUI()) {
+			EV << omnetpp::simTime() << " Finished execution\n";
 			bubble("finished");
 		}
 		if (state != TaskState::Running) {
 			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
+			executionMsg = nullptr;
 			throw omnetpp::cRuntimeError(
-			    "Logical received self message while not in running state");
+			    "Logical received self message while not in running state %i",
+			    static_cast<int>(state));
 		}
 		writeDataDicts();
 		sendCANFrames();
@@ -185,6 +189,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
 		send(blockedMsg, "scheduler$o");
+		EV << omnetpp::simTime() << " state was: " << state << " became Blocked\n";
 		state = TaskState::Blocked;
 
 	} else if (msg->arrivedOn("getFrame$i")) {
@@ -227,8 +232,13 @@ void Logical::handleResume() {
 	if (state == TaskState::Blocked) {
 		throw omnetpp::cRuntimeError("Logical received resume while taskstate was blocked");
 	}
+	if (state == TaskState::Paused) {
+		EV << omnetpp::simTime() << " Resumed from pause\n";   // NOLINT
+		state = TaskState::Running;
+	}
 	if (state == TaskState::Ready) {
 		// start execution
+		EV << omnetpp::simTime() << " Task was ready and became running\n";
 		executionTimeLeft = executionTime;
 		state             = TaskState::Running;
 		requestDataDict();
@@ -242,18 +252,20 @@ void Logical::handlePause() {
 		bubble("paused");
 	}
 	if (state == TaskState::Ready) {
-		throw omnetpp::cRuntimeError("Logical received resume while state was Ready");
+		throw omnetpp::cRuntimeError("Logical received pause while state was Ready");
 	}
 	if (state == TaskState::Blocked) {
-		throw omnetpp::cRuntimeError("Logical received resume while state was Blocked");
+		throw omnetpp::cRuntimeError("Logical received pause while state was Blocked");
 	}
 	if (state == TaskState::Paused) {
-		throw omnetpp::cRuntimeError("Logical received resume while state was Paused");
+		throw omnetpp::cRuntimeError("Logical received pause while state was Paused");
 	}
+	EV << omnetpp::simTime() << " Paused\n";
 	auto startTime    = executionMsg->getSendingTime();
 	auto timePassed   = omnetpp::simTime() - startTime;
 	executionTimeLeft = executionTimeLeft - timePassed;
 	state             = TaskState::Paused;
+	cancelEvent(executionMsg);
 }
 
 void Logical::requestDataDict() {
@@ -344,7 +356,7 @@ DataDictionaryValueList* Logical::createFramePayload(const CanDataFrameDefinitio
 			// Data dict was received from a local Logical
 			values->appendValue(**it);
 		} else {
-			// Other cases, dd is created by this logical, maybe others??
+			// Other cases, dd is created by this logical
 			DataDictionaryValue value{};
 			value.setDdName(ddDef.getDdName());
 			value.setGenerationTime(omnetpp::simTime());
@@ -400,7 +412,7 @@ void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
 		}
 	} else {
 		// TODO: Startup effect, how to handle properly?
-		EV << getFullPath() << " received a CAN frame without payload\n";
+		EV << getFullPath() << omnetpp::simTime() << " received a CAN frame without payload\n";
 	}
 	delete frame;   // NOLINT(cppcoreguidelines-owning-memory)
 }

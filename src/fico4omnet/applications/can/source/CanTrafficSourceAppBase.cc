@@ -225,6 +225,7 @@ unsigned int CanTrafficSourceAppBase::calculateLength(unsigned int dataLength) {
 
 unsigned int CanTrafficSourceAppBase::calculateStuffingBits(unsigned int dataLength,
         unsigned int arbFieldLength) {
+            EV_ERROR << "CanTrafficSourceAppBase::calculateStuffingBits shouldnt be called\n"; 
     return static_cast<unsigned int>(((CONTROLBITSFORBITSTUFFING + arbFieldLength + (dataLength * 8) - 1)/ 4) * bitStuffingPercentage);
 }
 

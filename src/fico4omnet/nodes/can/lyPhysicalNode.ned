@@ -18,8 +18,6 @@ module LyPhysicalNode
 
         int numDataDicts;
         int numLogicals;
-        //Higher priority number is higher priority.
-        sinkApp.priority = 14 + sizeof(gate);
         
     gates:
         inout gate[];

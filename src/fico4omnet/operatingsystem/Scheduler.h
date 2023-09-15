@@ -23,20 +23,17 @@ protected:
 
 private:
 	struct Task {
-		Task(double period_, omnetpp::intval_t priority_, omnetpp::cGate* inGate_,
-		     omnetpp::cGate* outGate_, bool periodic_)
+		Task(double period_, omnetpp::intval_t priority_, int inGate_, int outGate_)
 		    : period(period_)
 		    , priority(priority_)
 		    , inGate(inGate_)
-		    , outGate(outGate_)
-		    , periodic(periodic_) {}
+		    , outGate(outGate_) {}
 
 		// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
 		omnetpp::simtime_t period;
 		omnetpp::intval_t  priority;
-		omnetpp::cGate*    inGate;   // Might need to change to gate ID for uniqueness and stability
-		omnetpp::cGate*    outGate;
-		bool               periodic;
+		int                inGate;
+		int                outGate;
 		// NOLINTEND(misc-non-private-member-variables-in-classes)
 	};
 

@@ -43,9 +43,9 @@ void Scheduler::initialize(int stage) {
 
 			const auto period   = task->par("period").doubleValue();
 			const auto priority = task->par("priority").intValue();
-			const auto periodic = task->par("periodic").boolValue();
 			// Might need to change gate ptrs to gate ID for uniqueness and stability
-			blocked.emplace_back(period, priority, taskGate->getOtherHalf(), taskGate, periodic);
+			blocked.emplace_back(period, priority, taskGate->getOtherHalf()->getId(),
+			                     taskGate->getId());
 		}
 		// Start the Physical with the execution of the scheduler
 		isExecuting = true;
@@ -134,7 +134,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 				throw omnetpp::cRuntimeError(
 				    "Scheduler received \"TaskState::Blocked\" while no task was running");
 			}
-			if (running->inGate != event->getArrivalGate()) {
+			if (running->inGate != event->getArrivalGate()->getId()) {
 				throw omnetpp::cRuntimeError(
 				    "Scheduler received \"TaskState::Blocked\" from a task that was not running");
 			}
@@ -150,7 +150,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			scheduleAfter(0, selfmsg);
 			break;
 		case TaskState::Ready:
-			if (running.has_value() && running->inGate == event->getArrivalGate()) {
+			if (running.has_value() && running->inGate == event->getArrivalGate()->getId()) {
 				// Running task transmitted a Ready signal, assume that it finished.
 				// Put running task in ready queue, execute the scheduler.
 				ready.emplace_back(*running);
@@ -160,7 +160,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 				break;
 			}
 			if (auto it = std::find_if(cbegin(blocked), cend(blocked),
-			                           [inGate = event->getArrivalGate()](const auto& e) {
+			                           [inGate = event->getArrivalGate()->getId()](const auto& e) {
 				                           return inGate == e.inGate;
 			                           });
 			    it != cend(blocked)) {

@@ -16,7 +16,7 @@
 namespace FiCo4OMNeT {
 class CanLySourceApp
     : public CanTrafficSourceAppBase
-    , omnetpp::cListener {
+    , public omnetpp::cListener {
 public:
 	~CanLySourceApp() noexcept override;
 

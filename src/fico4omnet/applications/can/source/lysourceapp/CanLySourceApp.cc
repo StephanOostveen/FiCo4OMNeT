@@ -134,8 +134,8 @@ void CanLySourceApp::registerFrame(unsigned int frameId, const char* busName) {
 }
 
 int CanLySourceApp::frameToGateId(const CanDataFrame* frame) {
-	if (busIndex.find(frame->getBusName()) != std::cend(busIndex)) {
-		return busIndex[frame->getBusName()];
+	if (auto it = busIndex.find(frame->getBusName()); it != std::cend(busIndex)) {
+		return it->second;
 	}
 	throw omnetpp::cRuntimeError("Couldnt find gate for busname:\"%s\"", frame->getBusName());
 }

@@ -38,8 +38,8 @@ private:
 
 	DataDictionaryValueList* createFramePayload(const CanDataFrameDefinition*);
 
-	unsigned calculateOverHead(unsigned dataLength);
-	unsigned calculateStuffingBits(unsigned int dataLength);
+	unsigned calculateOverHead(unsigned dataLength, unsigned frameID);
+	unsigned calculateStuffingBits(unsigned int dataLength, bool isExtendedId);
 
 	void localyStoreReceivedFrame(CanDataFrame* frame);
 	void localyStoreReadDataDict(DataDictionaryValue* value);

@@ -318,7 +318,8 @@ void Logical::sendCANFrames() {
 
 		auto dataFieldByteLength = canDef.definition->getSizeInBytes();
 		// Calculate the nr of header, stuffing and footer bits for a given fieldlength in bytes
-		auto frameOverheadBits = calculateOverHead(dataFieldByteLength);
+		auto frameOverheadBits =
+		    calculateOverHead(dataFieldByteLength, canDef.definition->getCanID());
 		canFrame->setBitLength(frameOverheadBits);
 		auto* payload = createFramePayload(canDef.definition);
 		payload->setTimestamp();
@@ -354,14 +355,26 @@ DataDictionaryValueList* Logical::createFramePayload(const CanDataFrameDefinitio
 	return values;
 }
 
-unsigned Logical::calculateOverHead(unsigned dataLength) {
-	// Assume we only use CAN 2.0B with 11 bit identifier messages
-	return DataFrameControlBits + calculateStuffingBits(dataLength);
+unsigned Logical::calculateOverHead(unsigned dataLength, unsigned frameID) {
+	static constexpr unsigned smallestExtendedID = (1U << 11U);
+	if (frameID < smallestExtendedID) {
+		// CAN 2.0B with 11 bit identifier message
+		return DataFrameControlBits + calculateStuffingBits(dataLength, false);
+	}
+	// CAN 2.0B with 29 bit identifier message
+	static constexpr unsigned extendedIDBits = 20;   // 18 + 2 substitute bits
+	return DataFrameControlBits + extendedIDBits + calculateStuffingBits(dataLength, true);
 }
 
-unsigned int Logical::calculateStuffingBits(unsigned int dataLength) {
+unsigned int Logical::calculateStuffingBits(unsigned int dataLength, bool isExtendedId) {
 	// Get the stuffing percentage for this message, draw from a uniform distribution
 	auto bitStuffingPercentage = par("bitStuffingPercentage").doubleValue();
+	if (isExtendedId) {
+		static constexpr unsigned extendedIDBits = 20;   // 18 + 2 substitute bits
+		return static_cast<unsigned int>(
+		    ((ControlBitsEligibleForStuffing + extendedIDBits + (dataLength * 8) - 1) / 4)
+		    * bitStuffingPercentage);
+	}
 	return static_cast<unsigned int>(((ControlBitsEligibleForStuffing + (dataLength * 8) - 1) / 4)
 	                                 * bitStuffingPercentage);
 }

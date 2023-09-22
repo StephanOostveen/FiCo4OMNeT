@@ -15,14 +15,14 @@ void DataDictionary::handleMessage(omnetpp::cMessage* msg) {
 		if (hasGUI()) {
 			bubble("received a new value");
 		}
-		auto* ddValue         = omnetpp::check_and_cast<DataDictionaryValue*>(msg);
-		generationTime        = ddValue->getGenerationTime();
-		minimalDependencyTime = ddValue->getMinimalDependencyTime();
+		auto* ddValue  = omnetpp::check_and_cast<DataDictionaryValue*>(msg);
+		generationTime = ddValue->getGenerationTime();
+		writeCount     = ddValue->getWriteCount();
 	} else if (msg->arrivedOn("get$i")) {
 		auto* ddValue = new DataDictionaryValue();   // NOLINT(cppcoreguidelines-owning-memory)
 		ddValue->setDdName(par("name").stringValue());
 		ddValue->setGenerationTime(generationTime);
-		ddValue->setMinimalDependencyTime(minimalDependencyTime);
+		ddValue->setWriteCount(writeCount);
 
 		auto* arrivalGate = msg->getArrivalGate();
 		send(ddValue, arrivalGate->getOtherHalf());

@@ -13,8 +13,8 @@ protected:
 	void handleMessage(omnetpp::cMessage* msg) override;
 
 private:
-	omnetpp::simtime_t generationTime;
-	omnetpp::simtime_t minimalDependencyTime;
+	omnetpp::simtime_t generationTime{0};
+	unsigned long      writeCount{0};
 };
 
 }   // namespace FiCo4OMNeT

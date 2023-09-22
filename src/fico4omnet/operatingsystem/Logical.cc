@@ -185,6 +185,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 		writeDataDicts();
 		sendCANFrames();
 		clearReceivedDataDicts();   // Clears the datadicts that originate locally
+		++writeCount;               // All datadicts are written and transmitted, increment counter
 
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
@@ -288,7 +289,7 @@ void Logical::requestCANFrames() {
 void Logical::writeDataDicts() {
 	const auto generationTime = omnetpp::simTime();
 	// Write the datadicts that were received from CAN, they are simply forwarded and hence their
-	// timestamp doesnt change
+	// timestamp or writecount doesnt change
 	for (const auto& dd : receivedFrameDicts) {
 		// Find the output gate to send the received datadict to as is.
 		auto it = std::find_if(cbegin(canBusOutputDicts), cend(canBusOutputDicts),
@@ -312,7 +313,7 @@ void Logical::writeDataDicts() {
 		auto* ddValue = new DataDictionaryValue();   // NOLINT(cppcoreguidelines-owning-memory)
 		ddValue->setDdName(dd.definition->getDdName());
 		ddValue->setGenerationTime(generationTime);
-		ddValue->setMinimalDependencyTime(minimalDependencyTime);
+		ddValue->setWriteCount(writeCount);
 		send(ddValue, dd.gateId);
 	}
 }
@@ -360,7 +361,7 @@ DataDictionaryValueList* Logical::createFramePayload(const CanDataFrameDefinitio
 			DataDictionaryValue value{};
 			value.setDdName(ddDef.getDdName());
 			value.setGenerationTime(omnetpp::simTime());
-			value.setMinimalDependencyTime(minimalDependencyTime);
+			value.setWriteCount(writeCount);
 			values->appendValue(value);
 		}
 	}
@@ -407,8 +408,6 @@ void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
 		for (std::size_t i = 0; i < list->getValueArraySize(); ++i) {
 			const auto& value = list->getValue(i);
 			receivedFrameDicts.emplace_back(value);
-			minimalDependencyTime =
-			    std::min(minimalDependencyTime, value.getMinimalDependencyTime());
 		}
 	} else {
 		// TODO: Startup effect, how to handle properly?
@@ -441,7 +440,6 @@ void Logical::localyStoreReadDataDict(DataDictionaryValue* value) {
 	}
 
 	localDicts.emplace_back(value);
-	minimalDependencyTime = std::min(minimalDependencyTime, value->getMinimalDependencyTime());
 }
 
 void Logical::clearReceivedDataDicts() {

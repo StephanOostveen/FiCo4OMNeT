@@ -87,7 +87,8 @@ private:
 	std::vector<DataDictionaryValue*>
 	    localDicts{};   // Received datadicts from Logicals that are local in this physical
 
-	omnetpp::simtime_t minimalDependencyTime{};
+	// Counts how many times this logical has been executed and thus written the logicals it creates
+	unsigned long writeCount{0};
 
 	/**
 	 * @brief Overhead for a data frame.

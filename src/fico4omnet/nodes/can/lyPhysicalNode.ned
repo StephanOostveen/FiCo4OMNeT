@@ -14,7 +14,7 @@ module LyPhysicalNode
 {
     parameters:
         @display("i=device/modem");
-        int hardwareBufferSize = default(2);
+        int hardwareBufferSize;
 
         int numDataDicts;
         int numLogicals;

@@ -11,8 +11,8 @@ simple CanLySourceApp like ISourceApplication, ITask {
         @class(CanLySourceApp);
         @display("i=block/source");
 
-        double period @unit(s)= 2ms;
-        double executionTime @unit(s) = 0.1ms;
+        double period @unit(s);
+        double executionTime @unit(s);
         bool periodic = false;
         int priority = 4; // TX has lower priority
 

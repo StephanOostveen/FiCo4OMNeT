@@ -5,6 +5,7 @@
 #include "omnetpp/cexception.h"
 #include "omnetpp/checkandcast.h"
 #include "omnetpp/cmessage.h"
+#include "omnetpp/csimulation.h"
 #include "omnetpp/regmacros.h"
 
 #include <algorithm>
@@ -88,7 +89,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			};
 		};
 		if (highestReady != std::cend(ready) && highestPaused != std::cend(paused)) {
-			EV << "Highest ready: " << highestReady->priority
+			EV << omnetpp::simTime() << " Highest ready: " << highestReady->priority
 			   << " Highest paused: " << highestPaused->priority << "\n";
 			if (highestReady->priority < highestPaused->priority) {
 				// We need to schedule a paused task
@@ -104,16 +105,16 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 				             copyComp(highestReady->priority));
 			}
 		} else if (highestReady == std::cend(ready) && highestPaused != std::cend(paused)) {
-			EV << " Highest paused: " << highestPaused->priority << "\n";
+			EV << omnetpp::simTime() << " Highest paused: " << highestPaused->priority << "\n";
 			std::copy_if(cbegin(paused), cend(paused), std::back_inserter(eligibleTasks),
 			             copyComp(highestPaused->priority));
 		} else if (highestReady != std::cend(ready) && highestPaused == std::cend(paused)) {
-			EV << "Highest ready: " << highestReady->priority << "\n";
+			EV << omnetpp::simTime() << " Highest ready: " << highestReady->priority << "\n";
 			std::copy_if(cbegin(ready), cend(ready), std::back_inserter(eligibleTasks),
 			             copyComp(highestReady->priority));
 		}
 		// select a random task from the eligible tasks
-		if (eligibleTasks.size() > 0) {
+		if (!eligibleTasks.empty()) {
 			const auto  index = intuniform(0, eligibleTasks.size() - 1);
 			const auto& task  = eligibleTasks.at(index);
 
@@ -135,6 +136,8 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			auto* runningMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 			runningMsg->setState(TaskState::Running);
 			send(runningMsg, running->outGate);
+		} else {
+			EV << omnetpp::simTime() << " No eligible task found\n";
 		}
 		isExecuting = false;
 		auto delta  = interarrivalTime - executionTime;

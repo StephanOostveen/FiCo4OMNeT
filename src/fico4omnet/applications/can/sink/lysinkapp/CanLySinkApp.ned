@@ -11,10 +11,10 @@ simple CanLySinkApp like ISinkApplication, ITask {
         @class(CanLySinkApp);
         @display("i=block/sink");
 
-        double period @unit(s)= 2ms;
-        double executionTime @unit(s) = 0.1ms;
+        double period @unit(s);
+        double executionTime @unit(s);
         bool periodic = false;
-        int priority; //14 + 3 RX has higher priority
+        int priority; //14 + n, RX has higher priority
 
         //Signals
         @signal[rxDF](type=CanDataFrame);

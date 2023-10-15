@@ -8,7 +8,6 @@
 #include "omnetpp/cmessage.h"
 #include "omnetpp/simtime_t.h"
 
-#include <map>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -23,7 +22,7 @@ public:
 	/*
 	 * The given frame is registered as an initialization step before the simulation starts
 	 */
-	void registerFrame(unsigned int frameId, const char* busName);
+	void registerFrame(unsigned int frameId, const std::string& busName);
 
 	/**
 	 * overload from cListener for receiving the buffer lengths of the "hardware" buffer
@@ -36,32 +35,38 @@ protected:
 	void handleMessage(omnetpp::cMessage* msg) override;
 
 private:
+	struct BusInfo {
+		omnetpp::uintval_t   hardwareBufferSize;
+		omnetpp::simsignal_t bufferLengthSignal;
+		int                  gateId;
+	};
 	void handleIncomingFrame(CanDataFrame* frame);
 	void handleResume();
 	void handlePause();
 
 	int frameToGateId(const CanDataFrame* frame);
 
-	long                        bufferSize() const;
-	std::optional<unsigned int> nextFrame() const;
+	long bufferSize(const std::string& busName) const;
+	void selectNextFrames();
 
-	TaskState                             state{TaskState::Blocked};
-	std::map<unsigned int, CanDataFrame*> softwareBuffer{};
-	std::map<std::string, int>            busIndex{};
-	omnetpp::uintval_t                    hardwareBufferLength{0};
-	omnetpp::uintval_t                    maxHardwareBufferLength{};
-	omnetpp::simtime_t                    period{};
-	omnetpp::simtime_t                    executionTime{};
-	omnetpp::simtime_t                    executionTimeLeft{};
+	BusInfo createBusInfo(const std::string& busName, int gateID);
+
+	TaskState state{TaskState::Blocked};
+	std::unordered_map<std::string, std::map<unsigned int, CanDataFrame*>> softwareBuffer{};
+
+	std::unordered_map<std::string, BusInfo> busInfo{};
+	omnetpp::uintval_t                       maxHardwareBufferLength{};
+	omnetpp::simtime_t                       period{};
+	omnetpp::simtime_t                       executionTime{};
+	omnetpp::simtime_t                       executionTimeLeft{};
 
 	// txDF signal resides in CANTrafficSourceAppBase
 	omnetpp::simsignal_t overrunSignal;
-	omnetpp::simsignal_t bufferLengthSignal;
 
 	omnetpp::cMessage* selfmsg{nullptr};
 	omnetpp::cMessage* scheduleMsg{nullptr};
 
-	std::optional<unsigned int> msgToSend{std::nullopt};
+	std::unordered_map<std::string, std::optional<unsigned int>> msgToSend;
 };
 }   // namespace FiCo4OMNeT
 #endif

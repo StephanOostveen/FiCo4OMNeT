@@ -5,6 +5,7 @@ import fico4omnet.nodes.can.LyPhysicalNode;
 import fico4omnet.examplesLy.LYES.SCUNode;
 import fico4omnet.examplesLy.LYES.VCUNode;
 import fico4omnet.examplesLy.LYES.CGWNode;
+import fico4omnet.operatingsystem.Observer;
 
 network LyCanNetwork {
     parameters:
@@ -19,6 +20,9 @@ network LyCanNetwork {
         SCU: SCUNode;
         CGW: CGWNode;
         VCU: VCUNode;
+
+        //Observer:
+        Observer: Observer;
         
     connections:
         powertrain.gate++ <--> SCU.gate++;

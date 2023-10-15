@@ -37,11 +37,15 @@ void Logical::initialize() {
 	period        = par("period").doubleValue();
 	executionTime = par("executionTime").doubleValue();
 
+	readSignal  = registerSignal("read");
+	writeSignal = registerSignal("write");
+
 	parseCANInput();
 	parseCANOutput();
 	parseDDOutput();
-	EV << getFullPath() << " receives: " << canBusOutputDicts.size()
-	   << " datadicts, generates: " << localOutputDicts.size() << '\n';
+
+	EV << getFullPath() << " receives from CAN: " << canBusOutputDicts.size()
+	   << " datadicts, generates locally : " << localOutputDicts.size() << '\n';
 	executionMsg = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
 	scheduleMsg  = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
 	scheduleAt(0, scheduleMsg);
@@ -185,7 +189,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 		writeDataDicts();
 		sendCANFrames();
 		clearReceivedDataDicts();   // Clears the datadicts that originate locally
-		++writeCount;               // All datadicts are written and transmitted, increment counter
+		++cycleCounter;             // All datadicts are written and transmitted, increment counter
 
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
@@ -199,6 +203,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 	} else if (msg->arrivedOn("getDataDict$i")) {
 		auto* value = omnetpp::check_and_cast<DataDictionaryValue*>(msg);
 		localyStoreReadDataDict(value);
+		emit(readSignal, value);
 	} else if (msg->arrivedOn("scheduler$i")) {
 		auto* event = omnetpp::check_and_cast<SchedulerEvent*>(msg);
 		switch (event->getState()) {
@@ -287,9 +292,10 @@ void Logical::requestCANFrames() {
 }
 
 void Logical::writeDataDicts() {
-	const auto generationTime = omnetpp::simTime();
 	// Write the datadicts that were received from CAN, they are simply forwarded and hence their
 	// timestamp or writecount doesnt change
+	EV << omnetpp::simTime() << "Writing " << receivedFrameDicts.size()
+	   << "datadicts received from CAN\n";
 	for (const auto& dd : receivedFrameDicts) {
 		// Find the output gate to send the received datadict to as is.
 		auto it = std::find_if(cbegin(canBusOutputDicts), cend(canBusOutputDicts),
@@ -303,18 +309,22 @@ void Logical::writeDataDicts() {
 		}
 		// Set the generation time to the current time.
 		auto* copy = dd.dup();
-		copy->setGenerationTime(generationTime);
 		send(copy, it->gateId);
+		emit(writeSignal, &dd);
 	}
 	receivedFrameDicts.clear();
 
+	const auto generationTime = omnetpp::simTime();
 	// Write the datadicts created by this logical
 	for (const auto& dd : localOutputDicts) {
 		auto* ddValue = new DataDictionaryValue();   // NOLINT(cppcoreguidelines-owning-memory)
 		ddValue->setDdName(dd.definition->getDdName());
 		ddValue->setGenerationTime(generationTime);
-		ddValue->setWriteCount(writeCount);
-		send(ddValue, dd.gateId);
+		ddValue->setWriteCount(cycleCounter);
+
+		send(ddValue->dup(), dd.gateId);
+		emit(writeSignal, ddValue);
+		localyStoreReadDataDict(ddValue);
 	}
 }
 
@@ -328,6 +338,7 @@ void Logical::sendCANFrames() {
 		canFrame->setRtr(false);
 		canFrame->setPeriod(0.0);
 		canFrame->setGenerationTime(omnetpp::simTime());
+		canFrame->setTimestamp(omnetpp::simTime());
 
 		auto dataFieldByteLength = canDef.definition->getSizeInBytes();
 		// Calculate the nr of header, stuffing and footer bits for a given fieldlength in bytes
@@ -338,6 +349,13 @@ void Logical::sendCANFrames() {
 		payload->setTimestamp();
 		payload->setByteLength(dataFieldByteLength);
 		canFrame->encapsulate(payload);
+
+		if (canFrame->getBitLength() > 160) {
+			EV << omnetpp::simTime() << " CanFrame that was too large: " << canFrame->getCanID()
+			   << " frame bits: " << canFrame->getBitLength()
+			   << " frameOverhead: " << frameOverheadBits << " encapsulated packet bitsize: "
+			   << canFrame->getEncapsulatedPacket()->getBitLength() << "\n";
+		}
 		send(canFrame, canDef.gateId);
 	}
 }
@@ -354,15 +372,13 @@ DataDictionaryValueList* Logical::createFramePayload(const CanDataFrameDefinitio
 			                       return 0 == std::strcmp(receivedDDValue->getDdName(), name);
 		                       });
 		if (it != std::cend(localDicts)) {
-			// Data dict was received from a local Logical
+			// Data dict was received from a local Logical/created by this logical
 			values->appendValue(**it);
 		} else {
-			// Other cases, dd is created by this logical
-			DataDictionaryValue value{};
-			value.setDdName(ddDef.getDdName());
-			value.setGenerationTime(omnetpp::simTime());
-			value.setWriteCount(writeCount);
-			values->appendValue(value);
+			// Other cases, dd is not written
+			throw omnetpp::cRuntimeError("Missing Datadictionary %s when creating payload for "
+			                             "frame with id: %u on bus: %s",
+			                             ddDef.getDdName(), canDef->getCanID(), canDef->getBus());
 		}
 	}
 	return values;
@@ -381,12 +397,16 @@ unsigned Logical::calculateOverHead(unsigned dataLength, unsigned frameID) {
 
 unsigned int Logical::calculateStuffingBits(unsigned int dataLength, bool isExtendedId) {
 	// Get the stuffing percentage for this message, draw from a uniform distribution
-	auto bitStuffingPercentage = par("bitStuffingPercentage").doubleValue();
+	auto bitStuffingPercentage = par("bitStuffingPerc").doubleValue();
 	if (isExtendedId) {
 		static constexpr unsigned extendedIDBits = 20;   // 18 + 2 substitute bits
-		return static_cast<unsigned int>(
-		    ((ControlBitsEligibleForStuffing + extendedIDBits + (dataLength * 8) - 1) / 4)
-		    * bitStuffingPercentage);
+		auto                      maxStuffBits =
+		    ((ControlBitsEligibleForStuffing + extendedIDBits + (dataLength * 8) - 1) / 4);
+		auto stuffbits = static_cast<unsigned int>(maxStuffBits * bitStuffingPercentage);
+		if (stuffbits > 29) {
+			EV << omnetpp::simTime() << " stuffbits:" << stuffbits << "\n";
+		}
+		return stuffbits;
 	}
 	return static_cast<unsigned int>(((ControlBitsEligibleForStuffing + (dataLength * 8) - 1) / 4)
 	                                 * bitStuffingPercentage);
@@ -409,9 +429,13 @@ void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
 			const auto& value = list->getValue(i);
 			receivedFrameDicts.emplace_back(value);
 		}
+		EV << "Saved " << list->getValueArraySize() << " datadicts from canframe "
+		   << frame->getCanID() << "\n";
 	} else {
 		// TODO: Startup effect, how to handle properly?
-		EV << getFullPath() << omnetpp::simTime() << " received a CAN frame without payload\n";
+		EV << omnetpp::simTime()
+		   << " received a CAN frame without payload with id: " << frame->getCanID()
+		   << " on bus: " << frame->getBusName() << "\n";
 	}
 	delete frame;   // NOLINT(cppcoreguidelines-owning-memory)
 }
@@ -421,10 +445,6 @@ void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
  * @param value
  */
 void Logical::localyStoreReadDataDict(DataDictionaryValue* value) {
-	if (hasGUI()) {
-		bubble("read datadict");
-	}
-
 	auto it = std::find_if(cbegin(localDicts), cend(localDicts),
 	                       [receivedVal = value](const auto& value) {
 		                       const auto* const name = value->getDdName();

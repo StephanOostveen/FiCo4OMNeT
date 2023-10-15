@@ -6,6 +6,7 @@
 #include "DataDictionaryDefinition_m.h"
 #include "DataDictionaryValue_m.h"
 #include "ScheduleMsg_m.h"
+#include "omnetpp/clistener.h"
 #include "omnetpp/cmessage.h"
 #include "omnetpp/csimplemodule.h"
 #include "omnetpp/simtime_t.h"
@@ -88,7 +89,7 @@ private:
 	    localDicts{};   // Received datadicts from Logicals that are local in this physical
 
 	// Counts how many times this logical has been executed and thus written the logicals it creates
-	unsigned long writeCount{0};
+	unsigned long cycleCounter{0};
 
 	/**
 	 * @brief Overhead for a data frame.
@@ -99,6 +100,9 @@ private:
 	 */
 	static constexpr unsigned int DataFrameControlBits           = 47;
 	static constexpr unsigned int ControlBitsEligibleForStuffing = 34;
+
+	omnetpp::simsignal_t readSignal;
+	omnetpp::simsignal_t writeSignal;
 };
 }   // namespace FiCo4OMNeT
 #endif

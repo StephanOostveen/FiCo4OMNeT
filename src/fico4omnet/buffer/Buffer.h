@@ -104,12 +104,12 @@ protected:
      * @brief Signal containing the queue length, that is emitted every time a frame
      * was inserted or removed.
      */
-    static simsignal_t queueLengthSignal;
+    simsignal_t queueLengthSignal;
     /**
      * @brief Signal containing the queue size in byte, that is emitted every time a frame
      * was inserted or removed.
      */
-    static simsignal_t queueSizeSignal;
+    simsignal_t queueSizeSignal;
 
     /**
      * Stores the Gates to which the messages are delivered.

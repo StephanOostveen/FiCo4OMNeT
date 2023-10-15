@@ -15,12 +15,17 @@ simple Logical like ITask {
         int priority;
         string name;
 
-        volatile double bitStuffingPercentage;
+        volatile double bitStuffingPerc;
         
         object canInput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames read by this logical
         object canOutput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames transmitted
         object dataDictOut = default(FiCo4OMNeT::DataDictList{definition: []}); //Datadicts written by this logical that are not received from CAN
         
+        // publishes that it has read a certain DataDictionary with writeCount x and genTime y
+        @signal[read](type=DataDictionaryValue);
+        // publishes that it has produced a certain DataDictionary with writeCount x and genTime y
+        @signal[write](type=DataDictionaryValue);
+
     gates:
         output frameOut @labels(DataFrame); // Transmit a frame on the CAN bus
         inout getFrame; // Read a received CAN frame

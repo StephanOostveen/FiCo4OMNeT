@@ -340,8 +340,34 @@ module CGWNode extends LyPhysicalNode {
 		logical[6].name = "dvi_task";
         logical[6].priority = 8;
         logical[6].period = 50ms;
-        logical[6].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[6].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[6].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 1612, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1609, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1608, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1563, "sizeInBytes": 4, "bus": "powertrain", "dd": []}]};
+        logical[6].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 1611, "sizeInBytes": 3, "bus": "powertrain", "dd": []},
+			{"canID": 1601, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1541, "sizeInBytes": 1, "bus": "powertrain", "dd": []},
+			{"canID": 1535, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1536, "sizeInBytes": 2, "bus": "powertrain", "dd": []},
+			{"canID": 1554, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1552, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1557, "sizeInBytes": 7, "bus": "powertrain", "dd": []},
+			{"canID": 1566, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1560, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1567, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1544, "sizeInBytes": 7, "bus": "powertrain", "dd": []},
+			{"canID": 1545, "sizeInBytes": 7, "bus": "powertrain", "dd": []},
+			{"canID": 1602, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1568, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1549, "sizeInBytes": 3, "bus": "powertrain", "dd": []},
+			{"canID": 1604, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1605, "sizeInBytes": 4, "bus": "powertrain", "dd": []},
+			{"canID": 1613, "sizeInBytes": 5, "bus": "powertrain", "dd": []},
+			{"canID": 1603, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1572, "sizeInBytes": 2, "bus": "powertrain", "dd": []},
+			{"canID": 1558, "sizeInBytes": 8, "bus": "powertrain", "dd": []}]};
         logical[6].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "audio_notification_request", "bitSize": 16}, {"ddName": "ic_okay", "bitSize": 8}, {"ddName": "ivi_ac_request", "bitSize": 16}, {"ddName": "ivi_air_distribution_request", "bitSize": 16}, {"ddName": "ivi_avh_enable", "bitSize": 32}, {"ddName": "ivi_blower_speed_request", "bitSize": 16}, {"ddName": "ivi_cabin_temp_request", "bitSize": 32}, {"ddName": "ivi_charge_action", "bitSize": 16}, {"ddName": "ivi_clim_contr_mode_request", "bitSize": 16}, {"ddName": "ivi_closures_hood_action", "bitSize": 16}, {"ddName": "ivi_closures_lock_lid_action", "bitSize": 16}, {"ddName": "ivi_closures_lock_vehicle_action", "bitSize": 16}, {"ddName": "ivi_closures_reardoor_action", "bitSize": 16}, {"ddName": "ivi_cms_brightness_setting", "bitSize": 8}, {"ddName": "ivi_defog_request", "bitSize": 16}, {"ddName": "ivi_headlight_level_setting", "bitSize": 16}, {"ddName": "ivi_max_charge_soc_setting", "bitSize": 32}, {"ddName": "ivi_recirculation_request", "bitSize": 16}, {"ddName": "ivi_regen_intensity_setting", "bitSize": 32}, {"ddName": "ivi_wiper_service_request", "bitSize": 16}] };
         
 		logical[7].name = "vpc_gw_task_50ms";

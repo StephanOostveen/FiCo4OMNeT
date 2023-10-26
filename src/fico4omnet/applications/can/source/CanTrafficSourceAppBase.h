@@ -85,16 +85,6 @@ protected:
      */
     virtual void handleMessage(omnetpp::cMessage *msg);
 
-    /**
-     * @brief Calculates the length for the data frame.
-     *
-     * The size needed for the arbitration field, the control bits and the stuffing bits are added up.
-     *
-     * @param dataLength Size of the data field in bytes
-     *
-     * @return Returns the size for the can frame without the size needed for the data field.
-     */
-    unsigned int calculateLength(unsigned int dataLength);
 
     /**
      * @brief Transmits a data or remote frame to the connected output buffer.
@@ -125,23 +115,14 @@ protected:
 
 private:
     /**
-     * @brief Overhead for a data frame.
-     *
-     * The variable includes Start of frame, arbitration field (11 Bit), remote transmission bit,
-     * identifier extension bit, reserved bit, data length code, CRC, CRC-delimiter, ACK-slot,
-     * ACK-delimiter, end of frame and inter frame space.
-     */
-    static const unsigned int DATAFRAMECONTROLBITS = 47;
-
-    /**
-     * @brief Additional bit needed for the 29 bit ID.
-     */
-    static const unsigned int ARBITRATIONFIELD29BIT = 20;
-
-    /**
-     * @brief Number of control bits which are used in bit-stuffing. Just 34 of the 47 are subject to bit-stuffing.
-     */
-    static const unsigned int CONTROLBITSFORBITSTUFFING = 34;
+	 * @brief Overhead for a data frame.
+	 *
+	 * The variable includes Start of frame, arbitration field (11 Bit), remote transmission bit,
+	 * identifier extension bit, reserved bit, data length code, CRC, CRC-delimiter, ACK-slot,
+	 * ACK-delimiter, end of frame and inter frame space.
+	 */
+	static constexpr unsigned int DataFrameControlBits           = 47;
+	static constexpr unsigned int ControlBitsEligibleForStuffing = 34;
 
     /**
      * @brief Maximum ID value for Version 2.0A.
@@ -157,11 +138,6 @@ private:
      * @brief The version of CAN used in this network. Valid values: 2.0A or 2.0B
      */
     std::string canVersion;
-
-    /**
-     * @brief Value for the percentage distribution for bit stuffing. Valid values: 0 to 1.
-     */
-    double bitStuffingPercentage;
 
     /**
      * @brief Creates a data frame which will be queued in the buffer.
@@ -211,17 +187,8 @@ private:
      */
     unsigned int checkAndReturnID(unsigned int canID);
 
-    /**
-     * @brief Calculates the additional bits.
-     *
-     * For the calculation the parameter #bitStuffingPercentage is used. A value of 0 means no bit stuffing while a value of 100 stands for the worst case.
-     *
-     * @param dataLength Size of the data field in bytes
-     * @param arbFieldLength Size of the arbitration field
-     *
-     * @return Returns the number of stuffing bits.
-     */
-    unsigned int calculateStuffingBits(unsigned int dataLength, unsigned int arbFieldLength);
+    unsigned calculateOverhead(unsigned dataLength, unsigned frameID);
+    unsigned int calculateStuffingBits(unsigned int dataLength, bool isExtendedId);
 };
 }
 #endif /* CANTRAFFICSOURCEAPPBASE_H_ */

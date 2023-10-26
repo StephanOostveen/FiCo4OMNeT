@@ -46,9 +46,7 @@ module CanBus
         //bandwidth of the bus
         double bandwidth @unit(bps);
         //Version of CAN-Protocol. 2.0A = 11 Bits identifier, 2.0B = 29 Bits identifier
-        string version @enum("2.0A", "2.0B");					
-        //Value for the percentage distribution for bit stuffing. Valid values 0 to 1.
-        double bitStuffingPercentage;			
+        string version @enum("2.0A", "2.0B");			
     
     gates:
         inout gate[];

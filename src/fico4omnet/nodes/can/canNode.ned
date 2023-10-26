@@ -98,6 +98,6 @@ module CanNode
         canNodePort.phygate <--> gate;
         canNodePort.upperLayerIn <-- bufferOut.out;
         for i=0..numSourceApps-1 {
-            sourceApp[i].out --> bufferOut.in[i];
+            sourceApp[i].out++ --> bufferOut.in[i];
         }
 }

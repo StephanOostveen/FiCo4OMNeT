@@ -168,7 +168,6 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 		} else {
 			// TODO: Task overrun
 			if (hasGUI()) {
-				bubble("Logical overrun");
 				EV << omnetpp::simTime() << "Logical overrun: " << getFullPath() << "\n";
 			}
 		}
@@ -177,7 +176,6 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 		// Execution finished
 		if (hasGUI()) {
 			EV << omnetpp::simTime() << " Finished execution\n";
-			bubble("finished");
 		}
 		if (state != TaskState::Running) {
 			delete msg;   // NOLINT(cppcoreguidelines-owning-memory)
@@ -229,9 +227,6 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 }
 
 void Logical::handleResume() {
-	if (hasGUI()) {
-		bubble("resumed");
-	}
 	if (state == TaskState::Running) {
 		throw omnetpp::cRuntimeError("Logical received resume while taskstate was running");
 	}
@@ -254,9 +249,6 @@ void Logical::handleResume() {
 }
 
 void Logical::handlePause() {
-	if (hasGUI()) {
-		bubble("paused");
-	}
 	if (state == TaskState::Ready) {
 		throw omnetpp::cRuntimeError("Logical received pause while state was Ready");
 	}
@@ -397,7 +389,7 @@ unsigned Logical::calculateOverHead(unsigned dataLength, unsigned frameID) {
 
 unsigned int Logical::calculateStuffingBits(unsigned int dataLength, bool isExtendedId) {
 	// Get the stuffing percentage for this message, draw from a uniform distribution
-	auto bitStuffingPercentage = par("bitStuffingPerc").doubleValue();
+	auto bitStuffingPercentage = par("bitStuffingPercentage").doubleValue();
 	if (isExtendedId) {
 		static constexpr unsigned extendedIDBits = 20;   // 18 + 2 substitute bits
 		auto                      maxStuffBits =
@@ -417,25 +409,43 @@ unsigned int Logical::calculateStuffingBits(unsigned int dataLength, bool isExte
  * @param frame
  */
 void Logical::localyStoreReceivedFrame(CanDataFrame* frame) {
-	if (hasGUI()) {
-		bubble("read frame");
-	}
-
 	if (frame->hasEncapsulatedPacket()) {
-		const auto* list =
-		    omnetpp::check_and_cast<DataDictionaryValueList*>(frame->getEncapsulatedPacket());
-
-		for (std::size_t i = 0; i < list->getValueArraySize(); ++i) {
-			const auto& value = list->getValue(i);
-			receivedFrameDicts.emplace_back(value);
+		if (const auto* list =
+		        dynamic_cast<DataDictionaryValueList*>(frame->getEncapsulatedPacket());
+		    list != nullptr) {
+			for (std::size_t i = 0; i < list->getValueArraySize(); ++i) {
+				const auto& value = list->getValue(i);
+				receivedFrameDicts.emplace_back(value);
+			}
+			EV << "Saved " << list->getValueArraySize() << " datadicts from canframe "
+			   << frame->getCanID() << "\n";
 		}
-		EV << "Saved " << list->getValueArraySize() << " datadicts from canframe "
-		   << frame->getCanID() << "\n";
 	} else {
-		// TODO: Startup effect, how to handle properly?
-		EV << omnetpp::simTime()
-		   << " received a CAN frame without payload with id: " << frame->getCanID()
-		   << " on bus: " << frame->getBusName() << "\n";
+		// TODO: Startup effect
+		auto definition = std::find_if(
+		    std::cbegin(canInput), std::cend(canInput),
+		    [frameID = frame->getCanID(), busName = frame->getBusName()](const auto& def) {
+			    return def.definition->getCanID() == frameID
+			           && std::strcmp(def.definition->getBus(), busName) == 0;
+		    });
+		if (definition == std::cend(canInput)) {
+			EV << omnetpp::simTime()
+			   << " received an unknown CAN frame without payload with id: " << frame->getCanID()
+			   << " on bus: " << frame->getBusName() << "\n";
+		} else {
+			auto size = definition->definition->getDdArraySize();
+			for (size_t i = 0; i < size; ++i) {
+				const auto&         ddDef      = definition->definition->getDd(i);
+				const auto*         ddName     = ddDef.getDdName();
+				omnetpp::simtime_t  genTime    = 0;
+				unsigned long       writeCount = 0;
+				DataDictionaryValue dd{};
+				dd.setDdName(ddName);
+				dd.setGenerationTime(genTime);
+				dd.setWriteCount(writeCount);
+				receivedFrameDicts.emplace_back(dd);
+			}
+		}
 	}
 	delete frame;   // NOLINT(cppcoreguidelines-owning-memory)
 }

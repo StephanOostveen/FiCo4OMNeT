@@ -15,7 +15,7 @@ simple Logical like ITask {
         int priority;
         string name;
 
-        volatile double bitStuffingPerc;
+        volatile double bitStuffingPercentage;
         
         object canInput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames read by this logical
         object canOutput = default(FiCo4OMNeT::CanList{definition: []}); //CANFrames transmitted

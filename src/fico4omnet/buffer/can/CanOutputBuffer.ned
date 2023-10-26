@@ -55,9 +55,9 @@ simple CanOutputBuffer like ICanBuffer
         @signal[size](type=unsigned long; unit=B);
         
         //Statistic about the number of packets that were sent by the buffer
-        @statistic[rxPk](title="RX Packets"; source=rxPk; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @statistic[rxPk](title="RX Packets"; source=rxPk; record=count,"sum(packetBits)","vector(packetBits)"; interpolationmode=none);
         //Statistic of the amount of packets that were sent by the buffer
-        @statistic[txPk](title="TX Packets"; source=txPk; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+        @statistic[txPk](title="TX Packets"; source=txPk; record=count,"sum(packetBits)","vector(packetBits)"; interpolationmode=none);
         //Statistic of the queue length of the buffer
         @statistic[length](title="Queue Length"; source=length; unit=packets; record=vector,stats; interpolationmode=sample-hold);
         //Statistic of the queue size of the buffer in bytes

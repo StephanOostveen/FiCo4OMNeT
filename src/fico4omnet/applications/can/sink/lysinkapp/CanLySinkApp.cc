@@ -5,6 +5,7 @@
 #include "omnetpp/cexception.h"
 #include "omnetpp/checkandcast.h"
 #include "omnetpp/cmessage.h"
+#include "omnetpp/csimulation.h"
 #include "omnetpp/regmacros.h"
 #include <cstring>
 #include <iterator>
@@ -117,14 +118,14 @@ void CanLySinkApp::handleSelfMsg() {
 			}
 			it->second = BufferedFrame{frame};
 		} else {
-			throw omnetpp::cRuntimeError("CanLySinkApp buffered a non registered frame");
+			throw omnetpp::cRuntimeError(
+			    "CanLySinkApp buffered a non registered frame id: %u on bus: %s", frame->getCanID(),
+			    frame->getBusName());
 		}
 	}
 	receivedFrames.clear();
 	emit(softbufferLengthSignal, receivedFrames.size());
-	if (hasGUI()) {
-		bubble("Updated buffered frames");
-	}
+
 	state              = TaskState::Blocked;
 	auto* blockedFrame = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 	blockedFrame->setState(TaskState::Blocked);
@@ -172,11 +173,8 @@ void CanLySinkApp::handleFrameRequest(FrameRequest* request) {
 
 void CanLySinkApp::handleIncomingFrame(CanDataFrame* frame) {
 	// Received frame from the CAN bus, store it temporarily until task completion
-	if (hasGUI()) {
-		std::string msg("Received frame from bus: ");
-		msg += frame->getBusName();
-		bubble(msg.c_str());
-	}
+
+	EV << omnetpp::simTime() << "Received frame from bus: " << frame->getBusName() << "\n";
 
 	receivedFrames.emplace_back(frame);
 	if (state == TaskState::Blocked) {
@@ -190,9 +188,7 @@ void CanLySinkApp::handleIncomingFrame(CanDataFrame* frame) {
 }
 
 void CanLySinkApp::handleResume() {
-	if (hasGUI()) {
-		bubble("resumed");
-	}
+	EV << omnetpp::simTime() << "Resumed\n";
 	if (state == TaskState::Running) {
 		throw omnetpp::cRuntimeError("CANLySinkApp received resume while state was Running");
 	}
@@ -207,9 +203,7 @@ void CanLySinkApp::handleResume() {
 }
 
 void CanLySinkApp::handlePause() {
-	if (hasGUI()) {
-		bubble("paused");
-	}
+	EV << omnetpp::simTime() << "Paused\n";
 	if (state == TaskState::Ready) {
 		throw omnetpp::cRuntimeError("CanLySinkApp received resume while state was Ready");
 	}

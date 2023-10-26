@@ -30,6 +30,9 @@
 
 #include "fico4omnet/scheduler/can/CanClock.h"
 #include "fico4omnet/linklayer/can/CanPortInput.h"
+#include "omnetpp/cexception.h"
+#include "omnetpp/clog.h"
+#include "omnetpp/csimulation.h"
 
 namespace FiCo4OMNeT {
 
@@ -37,7 +40,6 @@ Define_Module(CanTrafficSourceAppBase);
 
 CanTrafficSourceAppBase::CanTrafficSourceAppBase()
 {
-    this->bitStuffingPercentage = 0;
     this->currentDrift = 0;
 }
 
@@ -55,9 +57,6 @@ void CanTrafficSourceAppBase::initialize(int stage) {
         canVersion =
                 getParentModule()->gate("gate$o",0)->getPathEndGate()->getOwnerModule()->getParentModule()->par(
                         "version").stdstringValue();
-        bitStuffingPercentage =
-                getParentModule()->gate("gate$o",0)->getPathEndGate()->getOwnerModule()->getParentModule()->par(
-                        "bitStuffingPercentage");
         sentDFSignal = registerSignal("txDF");
         sentRFSignal = registerSignal("txRF");
         checkParameterValues();
@@ -71,10 +70,6 @@ void CanTrafficSourceAppBase::initialize(int stage) {
 }
 
 void CanTrafficSourceAppBase::checkParameterValues() {
-    if (bitStuffingPercentage < 0 || bitStuffingPercentage > 1) {
-        throw cRuntimeError(
-                "The value for the parameter \"bitStuffingPercentage\" is not permitted. Permitted values are from 0 to 1.");
-    }
     if (canVersion.compare("2.0A") != 0 && canVersion.compare("2.0B") != 0) {
         throw cRuntimeError(
                 "The value for the parameter \"canVersion\" is not permitted. Permitted values are \"2.0B\" and \"2.0A\".");
@@ -121,6 +116,8 @@ void CanTrafficSourceAppBase::initialFrameCreation(std::string type,
         frameType = "remoteFrame";
     }
     std::vector<int> frameIDs = frameIDsTokenizer.asIntVector();
+    
+    const auto* busName = getParentModule()->gate("gate$o", 0)->getPathEndGate()->getOwnerModule()->getParentModule()->getName();
 
     for (unsigned int i = 0; i < frameIDs.size(); i++) {
         if (!dataLengthFramesTokenizer.hasMoreTokens()) {
@@ -132,15 +129,21 @@ void CanTrafficSourceAppBase::initialFrameCreation(std::string type,
         if (!initialFrameOffsetTokenizer.hasMoreTokens()) {
             throw cRuntimeError("No more values for the %s frame offset for the next %s frame ID (at index %d). Configuration in the ini file may be incorrect.", type.c_str(), type.c_str(), i);
         }
+
+        // Create a CAN frame, but don't set the size yet, this happens at transmission time except
+        // for the payload size as that is static for this CAN id and can thus be set once.
         CanDataFrame *can_msg = new CanDataFrame(frameType);
         can_msg->setCanID(checkAndReturnID(static_cast<unsigned int> (frameIDs.at(i))));
+        can_msg->setGenerationTime(omnetpp::simTime());
+        can_msg->setTimestamp(omnetpp::simTime());
+            
         unsigned int dataFieldLength = static_cast<unsigned int> (atoi(dataLengthFramesTokenizer.nextToken()));
-        can_msg->setBitLength(calculateLength(dataFieldLength));
         cPacket *payload_packet = new cPacket;
         payload_packet->setTimestamp();
         payload_packet->setByteLength(dataFieldLength);
         can_msg->encapsulate(payload_packet);
         can_msg->setPeriod(atof(framesPeriodicityTokenizer.nextToken()));
+        can_msg->setBusName(busName);
 
         if (type.compare("data") == 0) {
             outgoingDataFrames.push_back(can_msg);
@@ -188,13 +191,13 @@ void CanTrafficSourceAppBase::initialFrameCreation(std::string type,
 }
 
 void CanTrafficSourceAppBase::registerRemoteFrameAtPort(unsigned int canID) {
-    CanPortInput* port = dynamic_cast<CanPortInput*> (getParentModule()->getSubmodule(
+    CanPortInput* port = dynamic_cast<CanPortInput*> (getParentModule()->getSubmodule("canDevice", 0)->getSubmodule(
             "canNodePort")->getSubmodule("canPortInput"));
     port->registerOutgoingRemoteFrame(canID);
 }
 
 void CanTrafficSourceAppBase::registerDataFrameAtPort(unsigned int canID) {
-    CanPortInput* port = dynamic_cast<CanPortInput*> (getParentModule()->getSubmodule(
+    CanPortInput* port = dynamic_cast<CanPortInput*> (getParentModule()->getSubmodule("canDevice", 0)->getSubmodule(
             "canNodePort")->getSubmodule("canPortInput"));
     port->registerOutgoingDataFrame(canID, this->gate("remoteIn"));
 }
@@ -214,19 +217,32 @@ unsigned int CanTrafficSourceAppBase::checkAndReturnID(unsigned int canID) {
     return canID;
 }
 
-unsigned int CanTrafficSourceAppBase::calculateLength(unsigned int dataLength) {
-    unsigned int arbFieldLength = 0;
-    if (canVersion.compare("2.0B") == 0) {
-        arbFieldLength += ARBITRATIONFIELD29BIT;
-    }
-    return (arbFieldLength + DATAFRAMECONTROLBITS
-            + calculateStuffingBits(dataLength, arbFieldLength));
+unsigned CanTrafficSourceAppBase::calculateOverhead(unsigned dataLength, unsigned frameID) {
+	static constexpr unsigned smallestExtendedID = (1U << 11U);
+	if (frameID < smallestExtendedID) {
+		// CAN 2.0B with 11 bit identifier message
+		return DataFrameControlBits + calculateStuffingBits(dataLength, false);
+	}
+	// CAN 2.0B with 29 bit identifier message
+	static constexpr unsigned extendedIDBits = 20;   // 18 + 2 substitute bits
+	return DataFrameControlBits + extendedIDBits + calculateStuffingBits(dataLength, true);
 }
 
-unsigned int CanTrafficSourceAppBase::calculateStuffingBits(unsigned int dataLength,
-        unsigned int arbFieldLength) {
-            EV_ERROR << "CanTrafficSourceAppBase::calculateStuffingBits shouldnt be called\n"; 
-    return static_cast<unsigned int>(((CONTROLBITSFORBITSTUFFING + arbFieldLength + (dataLength * 8) - 1)/ 4) * bitStuffingPercentage);
+unsigned int CanTrafficSourceAppBase::calculateStuffingBits(unsigned int dataLength, bool isExtendedId) {
+	// Get the stuffing percentage for this message, draw from a uniform distribution
+	auto bitStuffingPercentage = par("bitStuffingPercentage").doubleValue();
+	if (isExtendedId) {
+		static constexpr unsigned extendedIDBits = 20;   // 18 + 2 substitute bits
+		auto                      maxStuffBits =
+		    ((ControlBitsEligibleForStuffing + extendedIDBits + (dataLength * 8) - 1) / 4);
+		auto stuffbits = static_cast<unsigned int>(maxStuffBits * bitStuffingPercentage);
+		if (stuffbits > 29) {
+			EV << omnetpp::simTime() << " stuffbits:" << stuffbits << "\n";
+		}
+		return stuffbits;
+	}
+	return static_cast<unsigned int>(((ControlBitsEligibleForStuffing + (dataLength * 8) - 1) / 4)
+	                                 * bitStuffingPercentage);
 }
 
 void CanTrafficSourceAppBase::frameTransmission(CanDataFrame *df) {
@@ -241,7 +257,7 @@ void CanTrafficSourceAppBase::frameTransmission(CanDataFrame *df) {
     if (df->isSelfMessage()) {
         outgoingFrame = df->dup();
         CanClock* canClock =
-                dynamic_cast<CanClock*>(getParentModule()->getSubmodule("canClock"));
+                dynamic_cast<CanClock*>(getParentModule()->getSubmodule("canDevice", 0)->getSubmodule("canClock"));
         currentDrift = canClock->getCurrentDrift();
         scheduleAt(
                 simTime() + (df->getPeriod())
@@ -262,10 +278,23 @@ void CanTrafficSourceAppBase::frameTransmission(CanDataFrame *df) {
     }
 
     outgoingFrame->setTimestamp(simTime());
+    outgoingFrame->setGenerationTime(simTime());
     cPacket* payload_packet = outgoingFrame->decapsulate();
+
+    auto frameOverheadBits = calculateOverhead(payload_packet->getByteLength(), outgoingFrame->getCanID());
+    outgoingFrame->setBitLength(frameOverheadBits);
     payload_packet->setTimestamp(simTime());
     outgoingFrame->encapsulate(payload_packet);
-    send(outgoingFrame, "out");
+
+    if (outgoingFrame->getBitLength() > 160) {
+        EV_ERROR << omnetpp::simTime() << " CanFrame that was too large: " << outgoingFrame->getCanID()
+            << " frame bits: " << outgoingFrame->getBitLength()
+            << " frameOverhead: " << frameOverheadBits << " encapsulated packet bitsize: "
+            << outgoingFrame->getEncapsulatedPacket()->getBitLength() << "\n";
+        throw omnetpp::cRuntimeError("Trying to transmit a CANFrame that was too large");
+    }
+
+    send(outgoingFrame, "out", 0);
 }
 
 }

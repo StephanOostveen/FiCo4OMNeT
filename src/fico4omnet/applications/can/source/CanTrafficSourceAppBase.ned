@@ -74,6 +74,7 @@ simple CanTrafficSourceAppBase like ISourceApplication
         //Inaccuracy for the node which is added to the schedule time for each frame. 
         double periodInaccurracy @unit(s) = default(0s);
         
+        volatile double bitStuffingPercentage;
     gates:
         //Frames are forwarded via this output gate to the next module. 
         output out[] @labels(DataFrame);

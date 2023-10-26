@@ -292,8 +292,25 @@ module CGWNode extends LyPhysicalNode {
 		logical[3].name = "aut_task";
         logical[3].priority = 8;
         logical[3].period = 50ms;
-        logical[3].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[3].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[3].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 401, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 416, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 1, "sizeInBytes": 1, "bus": "vehicle2", "dd": []},
+			{"canID": 400, "sizeInBytes": 1, "bus": "vehicle2", "dd": []},
+			{"canID": 402, "sizeInBytes": 1, "bus": "vehicle2", "dd": []},
+			{"canID": 403, "sizeInBytes": 1, "bus": "vehicle2", "dd": []},
+			{"canID": 405, "sizeInBytes": 8, "bus": "telematics", "dd": []},
+			{"canID": 406, "sizeInBytes": 8, "bus": "telematics", "dd": []},
+			{"canID": 407, "sizeInBytes": 1, "bus": "telematics", "dd": []},
+			{"canID": 415, "sizeInBytes": 1, "bus": "telematics", "dd": []}]};
+        logical[3].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 411, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 412, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 408, "sizeInBytes": 1, "bus": "vehicle2", "dd": []},
+			{"canID": 404, "sizeInBytes": 1, "bus": "telematics", "dd": []},
+			{"canID": 413, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 414, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 410, "sizeInBytes": 6, "bus": "powertrain", "dd": []}]};
         logical[3].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "authentication_level", "bitSize": 16}, {"ddName": "charge_action", "bitSize": 16}, {"ddName": "charging_authentication_level", "bitSize": 16}, {"ddName": "fob_closures_lock_vehicle_action", "bitSize": 16}] };
         
 		logical[4].name = "exl_control_task_gw";
@@ -306,8 +323,18 @@ module CGWNode extends LyPhysicalNode {
 		logical[5].name = "clr_control_closures_task";
         logical[5].priority = 8;
         logical[5].period = 50ms;
-        logical[5].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[5].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[5].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 0, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 2, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 3, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 13, "sizeInBytes": 8, "bus": "vehicle2", "dd": []}]};
+        logical[5].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 4, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 6, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 5, "sizeInBytes": 8, "bus": "vehicle2", "dd": []},
+			{"canID": 7, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 11, "sizeInBytes": 8, "bus": "vehicle2", "dd": []}]};
         logical[5].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "actual_closures_lock_vehicle", "bitSize": 16}, {"ddName": "actual_closures_reardoor", "bitSize": 16}, {"ddName": "closure_blink_request", "bitSize": 32}, {"ddName": "closures_door_status", "bitSize": 16}, {"ddName": "closures_hmi_scenario", "bitSize": 16}] };
         
 		logical[6].name = "dvi_task";

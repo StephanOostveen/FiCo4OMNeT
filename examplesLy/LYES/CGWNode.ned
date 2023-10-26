@@ -6,7 +6,7 @@ import fico4omnet.operatingsystem.DataDictionary;
 module CGWNode extends LyPhysicalNode {
     parameters:
         numDataDicts = 257;
-        numLogicals = 11;
+        numLogicals = 12;
         sinkApp.priority = 14 + 4;
 		//Source app has default prio of 4
 
@@ -372,6 +372,15 @@ module CGWNode extends LyPhysicalNode {
         logical[10].canOutput = FiCo4OMNeT::CanList{definition: []};
         logical[10].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
         
+		logical[11].name = "version_transmitter";
+		logical[11].priority = 8;
+		logical[11].period = 10s;
+		logical[11].canInput = FiCo4OMNeT::CanList{definition: []};
+		logical[11].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 536805378, "sizeInBytes": 1, "bus": "telematics", "dd": []}]};
+		logical[11].canInput = FiCo4OMNeT::CanList{definition: []};
+		logical[11].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
+
     connections allowunconnected:
         logical[3].getDataDict++ <--> dd[188].get++;
 		logical[3].getDataDict++ <--> dd[224].get++;

@@ -39,6 +39,10 @@ network LyCanNetwork {
         doorRearLeft: ParametrizableNode;
         doorRearRight: ParametrizableNode;
 
+        //VCU TMS:
+        fillingtool: ParametrizableNode;
+        compressor: ParametrizableNode;
+
         //Observer:
         Observer: Observer;
         
@@ -52,7 +56,9 @@ network LyCanNetwork {
 
         vehicle.gate++ <--> VCU.gate++;
         vehicle.gate++ <--> CGW.gate++;
-
+        vehicle.gate++ <--> fillingtool.gate++;
+        vehicle.gate++ <--> compressor.gate++;
+        
         vehicle2.gate++ <--> CGW.gate++;
         vehicle2.gate++ <--> tailgateLatch.gate++;
         vehicle2.gate++ <--> doorRearLeft.gate++;

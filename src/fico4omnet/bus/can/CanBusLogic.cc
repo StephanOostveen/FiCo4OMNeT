@@ -32,6 +32,7 @@
 
 //Auto-generated messages
 #include "ErrorFrame_m.h"
+#include "omnetpp/clog.h"
 
 namespace FiCo4OMNeT {
 
@@ -153,6 +154,7 @@ void CanBusLogic::grantSendingPermission() {
         getParentModule()->cComponent::bubble("More than one node sends with the same ID.");
         getParentModule()->getDisplayString().setTagArg("i2", 0, "status/excl3");
         getParentModule()->getDisplayString().setTagArg("tt", 0, "WARNING: More than one node sends with the same ID.");
+        EV_ERROR << "More than one node sends with the same ID: " << currentSendingID << "\n";
     }
     if (sendingNode != nullptr) {
         CanOutputBuffer* controller = check_and_cast<CanOutputBuffer *>(

@@ -6,7 +6,7 @@ import fico4omnet.operatingsystem.DataDictionary;
 module VCUNode extends LyPhysicalNode {
     parameters:
         numDataDicts = 256;
-        numLogicals = 15;
+        numLogicals = 16;
         sinkApp.priority = 14 + 5;
 		//Source app has default prio of 4
 
@@ -270,7 +270,80 @@ module VCUNode extends LyPhysicalNode {
         logical[0].name = "dcm_vcu_10_ms_task";
         logical[0].priority = 10;
         logical[0].period = 10ms;
-        logical[0].canInput = FiCo4OMNeT::CanList{definition: []};
+        logical[0].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 1792, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1800, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1808, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1816, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1824, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1832, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1840, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1848, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1856, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1793, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1801, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1809, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1817, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1825, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1833, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1841, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1849, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1857, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1794, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1802, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1810, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1818, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1826, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1834, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1842, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1850, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1858, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1795, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1803, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1811, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1819, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1827, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1835, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1843, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1851, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1859, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1796, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1804, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1812, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1820, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1828, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1836, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1844, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1852, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1860, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1797, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1805, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1813, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1821, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1829, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1837, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1845, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1853, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1861, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1798, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1806, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1814, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1822, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1830, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1838, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1846, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1854, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1862, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1799, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1807, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1815, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1823, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1831, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1839, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1847, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1855, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []},
+			{"canID": 1863, "sizeInBytes": 8, "bus": "surrounding_sense", "dd": []}
+		]};
         logical[0].canOutput = FiCo4OMNeT::CanList{definition: []};
         logical[0].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
         
@@ -284,8 +357,14 @@ module VCUNode extends LyPhysicalNode {
 		logical[2].name = "dcm_vcu_task";
         logical[2].priority = 9;
         logical[2].period = 50ms;
-        logical[2].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[2].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[2].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 148, "sizeInBytes": 7, "bus": "driver_support", "dd": []},
+			{"canID": 543, "sizeInBytes": 3, "bus": "driver_support", "dd": []}
+		]};
+        logical[2].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 54, "sizeInBytes": 8, "bus": "driver_support", "dd": []},
+			{"canID": 248, "sizeInBytes": 2, "bus": "driver_support", "dd": []}
+		]};
         logical[2].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "alarm_hazard_lights_request", "bitSize": 32}, {"ddName": "cruise_control_active", "bitSize": 8}, {"ddName": "cruise_control_hmi_scenario", "bitSize": 16}, {"ddName": "cruise_velocity_request", "bitSize": 32}, {"ddName": "dcm_hmi_scenario", "bitSize": 16}, {"ddName": "exterior_lighting_request_reliable", "bitSize": 16}, {"ddName": "exterior_lighting_request", "bitSize": 16}, {"ddName": "fog_light_request_reliable", "bitSize": 16}, {"ddName": "fog_light_request", "bitSize": 16}, {"ddName": "high_beam_request_reliable", "bitSize": 16}, {"ddName": "high_beam_request", "bitSize": 16}, {"ddName": "horn_request_reliable", "bitSize": 32}, {"ddName": "horn_request", "bitSize": 32}, {"ddName": "media_next", "bitSize": 8}, {"ddName": "media_prev", "bitSize": 8}, {"ddName": "media_scroll", "bitSize": 8}, {"ddName": "media_source", "bitSize": 8}, {"ddName": "media_toggle_widget", "bitSize": 8}, {"ddName": "media_volume_down", "bitSize": 8}, {"ddName": "media_volume_up", "bitSize": 8}, {"ddName": "parking_sense_distance_front_ll", "bitSize": 8}, {"ddName": "parking_sense_distance_front_ml", "bitSize": 8}, {"ddName": "parking_sense_distance_front_mr", "bitSize": 8}, {"ddName": "parking_sense_distance_front_rr", "bitSize": 8}, {"ddName": "parking_sense_distance_rear_ll", "bitSize": 8}, {"ddName": "parking_sense_distance_rear_ml", "bitSize": 8}, {"ddName": "parking_sense_distance_rear_mr", "bitSize": 8}, {"ddName": "parking_sense_distance_rear_rr", "bitSize": 8}, {"ddName": "starter_kill", "bitSize": 8}, {"ddName": "stw_spdc_deactiv_butt_state", "bitSize": 32}, {"ddName": "stw_spdc_func_selection", "bitSize": 32}, {"ddName": "stw_spdc_set_min_butt_state", "bitSize": 32}, {"ddName": "stw_spdc_set_plus_butt_state", "bitSize": 32}, {"ddName": "turn_indication_request_reliable", "bitSize": 16}, {"ddName": "turn_indication_request", "bitSize": 16}, {"ddName": "washer_spray_request_reliable", "bitSize": 8}, {"ddName": "washer_spray_request", "bitSize": 8}, {"ddName": "wipe_request_reliable", "bitSize": 16}, {"ddName": "wipe_request", "bitSize": 16}] };
         
 		logical[3].name = "exl_control_task_vcu";
@@ -319,8 +398,136 @@ module VCUNode extends LyPhysicalNode {
 		logical[7].name = "sol_task";
         logical[7].priority = 9;
         logical[7].period = 50ms;
-        logical[7].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[7].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[7].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 65, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 81, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 97, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 113, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 129, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 145, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 161, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 177, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 193, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 209, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 225, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 241, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 257, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 273, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 66, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 82, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 98, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 114, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 130, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 146, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 162, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 178, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 194, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 210, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 226, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 242, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 258, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 274, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 71, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 87, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 103, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 119, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 135, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 151, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 167, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 183, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 199, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 215, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 231, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 247, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 263, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 279, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 72, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 88, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 104, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 120, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 136, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 152, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 168, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 184, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 200, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 216, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 232, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 248, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 264, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 280, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 73, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 89, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 105, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 121, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 137, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 153, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 169, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 185, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 201, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 217, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 233, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 249, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 265, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 281, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 67, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 83, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 99, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 115, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 131, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 147, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 163, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 179, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 195, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 211, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 227, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 243, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 259, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 275, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 69, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 85, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 101, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 117, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 133, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 149, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 165, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 181, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 197, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 213, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 229, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 245, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 261, "sizeInBytes": 8, "bus": "solar", "dd": []},
+			{"canID": 277, "sizeInBytes": 8, "bus": "solar", "dd": []}
+		]};
+        logical[7].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID":76, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":92, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":108, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":124, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":140, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":156, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":172, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":188, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":204, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":220, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":236, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":252, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":268, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":284, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":77, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":93, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":109, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":125, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":141, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":157, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":173, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":189, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":205, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":221, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":237, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":253, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":269, "sizeInBytes": 1, "bus": "solar", "dd": []},
+			{"canID":285, "sizeInBytes": 1, "bus": "solar", "dd": []}
+		]};
         logical[7].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "actual_solar_operating_mode", "bitSize": 16}, {"ddName": "sol_power_mode", "bitSize": 32}, {"ddName": "solar_dsc00_hood_l11_power", "bitSize": 8}, {"ddName": "solar_dsc00_hood_l21_power", "bitSize": 8}, {"ddName": "solar_dsc00_power", "bitSize": 8}, {"ddName": "solar_dsc01_hood_l31_power", "bitSize": 8}, {"ddName": "solar_dsc01_hood_l32_power", "bitSize": 8}, {"ddName": "solar_dsc01_power", "bitSize": 8}, {"ddName": "solar_dsc02_hood_r41_power", "bitSize": 8}, {"ddName": "solar_dsc02_hood_r42_power", "bitSize": 8}, {"ddName": "solar_dsc02_power", "bitSize": 8}, {"ddName": "solar_dsc03_hood_r51_power", "bitSize": 8}, {"ddName": "solar_dsc03_hood_r61_power", "bitSize": 8}, {"ddName": "solar_dsc03_power", "bitSize": 8}, {"ddName": "solar_dsc04_power", "bitSize": 8}, {"ddName": "solar_dsc04_roof_l11_power", "bitSize": 8}, {"ddName": "solar_dsc04_roof_l21_power", "bitSize": 8}, {"ddName": "solar_dsc05_power", "bitSize": 8}, {"ddName": "solar_dsc05_roof_l22_power", "bitSize": 8}, {"ddName": "solar_dsc05_roof_l23_power", "bitSize": 8}, {"ddName": "solar_dsc06_power", "bitSize": 8}, {"ddName": "solar_dsc06_roof_l12_power", "bitSize": 8}, {"ddName": "solar_dsc06_roof_l24_power", "bitSize": 8}, {"ddName": "solar_dsc07_power", "bitSize": 8}, {"ddName": "solar_dsc07_roof_r31_power", "bitSize": 8}, {"ddName": "solar_dsc07_roof_r41_power", "bitSize": 8}, {"ddName": "solar_dsc08_power", "bitSize": 8}, {"ddName": "solar_dsc08_roof_r32_power", "bitSize": 8}, {"ddName": "solar_dsc08_roof_r33_power", "bitSize": 8}, {"ddName": "solar_dsc09_power", "bitSize": 8}, {"ddName": "solar_dsc09_roof_r34_power", "bitSize": 8}, {"ddName": "solar_dsc09_roof_r42_power", "bitSize": 8}, {"ddName": "solar_dsc10_power", "bitSize": 8}, {"ddName": "solar_dsc10_tail_l11_power", "bitSize": 8}, {"ddName": "solar_dsc10_tail_l21_power", "bitSize": 8}, {"ddName": "solar_dsc11_power", "bitSize": 8}, {"ddName": "solar_dsc11_tail_l22_power", "bitSize": 8}, {"ddName": "solar_dsc11_tail_l23_power", "bitSize": 8}, {"ddName": "solar_dsc12_power", "bitSize": 8}, {"ddName": "solar_dsc12_tail_r32_power", "bitSize": 8}, {"ddName": "solar_dsc12_tail_r33_power", "bitSize": 8}, {"ddName": "solar_dsc13_power", "bitSize": 8}, {"ddName": "solar_dsc13_tail_r31_power", "bitSize": 8}, {"ddName": "solar_dsc13_tail_r41_power", "bitSize": 8}, {"ddName": "solar_total_energy", "bitSize": 32}, {"ddName": "solar_total_power", "bitSize": 16}] };
         
 		logical[8].name = "stm_task";
@@ -379,6 +586,14 @@ module VCUNode extends LyPhysicalNode {
         logical[14].canOutput = FiCo4OMNeT::CanList{definition: []};
         logical[14].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
         
+		logical[15].name = "version_transmitter";
+		logical[15].priority = 9;
+		logical[15].period = 10s;
+		logical[15].canInput = FiCo4OMNeT::CanList{definition: []};
+		logical[15].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 536805377, "sizeInBytes": 1, "bus": "vehicle", "dd": []}]};
+		logical[15].canInput = FiCo4OMNeT::CanList{definition: []};
+		logical[15].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
     connections allowunconnected:
         logical[10].getDataDict++ <--> dd[189].get++;
 		logical[10].getDataDict++ <--> dd[158].get++;

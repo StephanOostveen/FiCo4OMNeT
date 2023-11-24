@@ -29,22 +29,22 @@ void IDFilter::receiveSignal(cResultFilter *prev, simtime_t_cref t,
     (void)prev;
 #ifdef WITH_CAN_COMMON
     if (CanDataFrame* dataFrame = dynamic_cast<CanDataFrame *>(object)) {
-        fire(this, t, static_cast<unsigned long> (dataFrame->getCanID()), details);
+        fire(this, t, static_cast<uintval_t> (dataFrame->getCanID()), details);
         return;
     }
     if (ErrorFrame* errorFrame = dynamic_cast<ErrorFrame *>(object)) {
-        fire(this, t, static_cast<unsigned long> (errorFrame->getCanID()), details);
+        fire(this, t, static_cast<uintval_t> (errorFrame->getCanID()), details);
         return;
     }
     if (ErrorFrame* errorFrame = dynamic_cast<ErrorFrame *>(object)) {
-        fire(this, t, static_cast<unsigned long> (errorFrame->getCanID()), details);
+        fire(this, t, static_cast<uintval_t> (errorFrame->getCanID()), details);
         return;
     }
 #endif
 
 #ifdef WITH_FR_COMMON
     if (FRFrame* frFrame = dynamic_cast<FRFrame *>(object)) {
-        fire(this, t, static_cast<unsigned long> (frFrame->getFrameID()), details);
+        fire(this, t, static_cast<uintval_t> (frFrame->getFrameID()), details);
         return;
     }
 #endif
@@ -103,7 +103,7 @@ void RmNaNFilter::finish(cResultFilter * prev)
 {
     (void)prev;
     if(!this->hadValues){
-        fire(this, simTime(), static_cast<unsigned long> (0), nullptr);
+        fire(this, simTime(), static_cast<uintval_t> (0), nullptr);
     }
 }
 

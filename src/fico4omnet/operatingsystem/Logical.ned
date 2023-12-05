@@ -1,8 +1,6 @@
 package fico4omnet.operatingsystem;
 
 import fico4omnet.operatingsystem.ITask;
-import fico4omnet.operatingsystem.CanList;
-import fico4omnet.operatingsystem.DataDictList;
 
 simple Logical like ITask {
     parameters:

@@ -5,6 +5,7 @@
 #include "ErrorFrame_m.h"
 #include "FRFrame_m.h"
 
+#include "omnetpp/cresultfilter.h"
 namespace FiCo4OMNeT {
 
 Register_ResultFilter("timestampAge", TimestampAgeFilter);

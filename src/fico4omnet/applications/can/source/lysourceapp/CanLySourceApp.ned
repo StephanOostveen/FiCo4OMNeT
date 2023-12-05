@@ -20,13 +20,11 @@ simple CanLySourceApp like ISourceApplication, ITask {
         @signal[txDF](type=CanDataFrame);
         // CAN message with id x was queued for transmission before the last queued instance was transmitted
         @signal[overrun](type=long);
-        @signal[softbufferLength](type=long);
 
         //Statistics
-        @statistic[txDf](title="source appp transmitted data frame"; source=txDF; record=count);
+        @statistic[txDF](title="source app transmitted data frame"; source=txDF; record=count);
         @statistic[overrun](title="CAN message overrun"; record=vector);
-        @statistic[softbufferLength](title="Software buffer length"; unit=packets; record=vector,stats; interpolationmode=sample-hold);
-    
+        
         //Needed for inheriting from the CanTrafficSourceAppBase
         //The Data Frames ID(s) - String parameter (int) separated with commas
         string idDataFrames = default("");					

@@ -24,7 +24,7 @@ simple CanLySinkApp like ISinkApplication, ITask {
         @signal[softbufferLength](type=long);
         
         //Statistics
-        @statistic[rxDf](title="source appp received data frame"; source=rxDF; record=count);
+        @statistic[rxDF](title="sink app received data frame"; source=rxDF; record=count);
         @statistic[overrun](title="CAN message overrun"; record=vector);
         @statistic[underrun](title="CAN message underrun"; record=vector);
         @statistic[softbufferLength](title="Software buffer length"; unit=packets; record=vector,stats; interpolationmode=sample-hold);

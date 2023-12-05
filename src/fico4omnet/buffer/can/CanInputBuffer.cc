@@ -41,6 +41,8 @@ void CanInputBuffer::initialize(){
 }
 
 void CanInputBuffer::registerFrame(unsigned int frameId) {
+    Enter_Method_Silent();
+    EV << "registering frame: " << frameId << "\n";
     auto* port = omnetpp::check_and_cast<CanPortInput*> (getParentModule()->getSubmodule(
             "canNodePort")->getSubmodule("canPortInput"));
     port->registerIncomingDataFrame(frameId, gate("directIn"));

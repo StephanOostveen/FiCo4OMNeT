@@ -71,6 +71,7 @@ simple CanBusLogic
         @statistic[bitsPerSec](title="Bits/sec"; unit="bps"; source="sumPerDuration(packetBits(rxPk))"; record=last);
         //Statistic about the percentage utilization of the bus. 
         @statistic[utilization](title="Utilization"; unit="%"; source="lowHighRatio(state)*100"; record=last);
+        @statistic[state](title="Bus State"; source=state; record=vector; interpolationmode=sample-hold);
         //Statistic of the number of frames at all senders ready to be sent
         @statistic[arbitrationLength](title="Arbitration Length"; source=arbitrationLength; unit=packets; record=vector,stats; interpolationmode=sample-hold);
         

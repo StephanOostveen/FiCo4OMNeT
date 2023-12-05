@@ -29,3 +29,4 @@ src/Makefile
 .oppfeaturestate
 .nedexclusions
 src/fico4omnet/features.h
+.qtenvrc

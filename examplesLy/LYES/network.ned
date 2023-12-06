@@ -19,6 +19,9 @@ network LyCanNetwork {
         telematics: CanBus;
         driver_support: CanBus;
         surrounding_sense: CanBus;
+        drivetrain: CanBus;
+        energy_management: CanBus;
+        HVBS: CanBus;
 
         // Nodes:
         SCU: SCUNode;
@@ -70,6 +73,11 @@ network LyCanNetwork {
         dual_string_converter13: ParametrizableNode;
         dual_string_converter14: ParametrizableNode;
 
+        //SCU prc:
+        inverter_fl : ParametrizableNode;
+        inverter_fr : ParametrizableNode;
+        inverter_rl : ParametrizableNode;
+        inverter_rr : ParametrizableNode;
         //Observer:
         Observer: Observer;
         
@@ -123,4 +131,13 @@ network LyCanNetwork {
         surrounding_sense.gate++ <--> suroundsens6.gate++;
         surrounding_sense.gate++ <--> suroundsens7.gate++;
         surrounding_sense.gate++ <--> suroundsens8.gate++;
+
+        drivetrain.gate++ <--> SCU.gate++;
+        drivetrain.gate++ <--> inverter_fl.gate++;
+        drivetrain.gate++ <--> inverter_fr.gate++;
+        drivetrain.gate++ <--> inverter_rl.gate++;
+        drivetrain.gate++ <--> inverter_rr.gate++;
+
+        energy_management.gate++ <--> SCU.gate++;
+        HVBS.gate++ <--> SCU.gate++;
 }

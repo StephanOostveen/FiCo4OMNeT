@@ -591,7 +591,7 @@ module VCUNode extends LyPhysicalNode {
 		logical[15].period = 10s;
 		logical[15].canInput = FiCo4OMNeT::CanList{definition: []};
 		logical[15].canOutput = FiCo4OMNeT::CanList{definition: [
-			{"canID": 536805377, "sizeInBytes": 1, "bus": "vehicle", "dd": []}]};
+			{"canID": 536805377, "sizeInBytes": 8, "bus": "vehicle", "dd": []}]};
 		logical[15].canInput = FiCo4OMNeT::CanList{definition: []};
 		logical[15].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
     connections allowunconnected:

@@ -403,7 +403,7 @@ module CGWNode extends LyPhysicalNode {
 		logical[11].period = 10s;
 		logical[11].canInput = FiCo4OMNeT::CanList{definition: []};
 		logical[11].canOutput = FiCo4OMNeT::CanList{definition: [
-			{"canID": 536805378, "sizeInBytes": 1, "bus": "telematics", "dd": []}]};
+			{"canID": 536805378, "sizeInBytes": 8, "bus": "telematics", "dd": []}]};
 		logical[11].canInput = FiCo4OMNeT::CanList{definition: []};
 		logical[11].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
 

@@ -6,7 +6,7 @@ import fico4omnet.operatingsystem.DataDictionary;
 module SCUNode extends LyPhysicalNode {
     parameters:
         numDataDicts = 357;
-        numLogicals = 19;
+        numLogicals = 20;
         sinkApp.priority = 14 + 3;
 		//Source app has default prio of 4
 
@@ -513,6 +513,14 @@ module SCUNode extends LyPhysicalNode {
         logical[18].canOutput = FiCo4OMNeT::CanList{definition: []};
         logical[18].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
         
+		logical[19].name = "version_transmitter";
+		logical[19].priority = 8;
+		logical[19].period = 10s;
+		logical[19].canInput = FiCo4OMNeT::CanList{definition: []};
+		logical[19].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 536805376, "sizeInBytes": 8, "bus": "drivetrain", "dd": []}]};
+		logical[19].canInput = FiCo4OMNeT::CanList{definition: []};
+		logical[19].dataDictOut = FiCo4OMNeT::DataDictList{definition: [] };
     connections allowunconnected:
         logical[3].setDataDict++ --> dd[210].set;
 		logical[3].setDataDict++ --> dd[261].set;

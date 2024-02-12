@@ -51,7 +51,9 @@ void Observer::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_t id,
 }
 
 void Observer::readSignal(omnetpp::cObject* value) {
-	auto* ddValue = omnetpp::check_and_cast<DataDictionaryValue*>(value);
+// TODO:
+// 	split per Physical;
+	auto*     ddValue = omnetpp::check_and_cast<DataDictionaryValue*>(value);
 	if (const auto signalBufferIt = database.find(ddValue->getDdName());
 	    signalBufferIt != std::cend(database)) {
 		const auto& [signal, buffer] = signalBufferIt->second;

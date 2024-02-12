@@ -375,16 +375,63 @@ module SCUNode extends LyPhysicalNode {
 			{"canID": 21, "sizeInBytes": 8, "bus": "drivetrain", "dd": []},
 			{"canID": 22, "sizeInBytes": 8, "bus": "drivetrain", "dd": []},
 			{"canID": 23, "sizeInBytes": 8, "bus": "drivetrain", "dd": []},
-			{"canID": 24, "sizeInBytes": 8, "bus": "drivetrain", "dd": []}
+			{"canID": 24, "sizeInBytes": 8, "bus": "drivetrain", "dd": []},
+			{"canID": 264, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 377, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 773, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 772, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 263, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 259, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 376, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 517, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1281, "sizeInBytes": 8, "bus": "energy_management", "dd": []}
 		]};
-        logical[0].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[0].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 515, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 513, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 281, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 277, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 273, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 265, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 279, "sizeInBytes": 8, "bus": "energy_management", "dd": []}
+		]};
         logical[0].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "accelerator_pedal_reliability", "bitSize": 16}, {"ddName": "accelerator_pedal_value", "bitSize": 32}, {"ddName": "bms_hvbs_aux_link_volt", "bitSize": 32}, {"ddName": "bms_hvbs_cntr_state_aux1", "bitSize": 8}, {"ddName": "bms_hvbs_isolation_error", "bitSize": 8}, {"ddName": "bms_hvbs_isolation_state", "bitSize": 8}, {"ddName": "bms_hvbs_max_mod_temp", "bitSize": 32}, {"ddName": "bms_hvbs_min_mod_temp", "bitSize": 32}, {"ddName": "bms_hvbs_state", "bitSize": 8}, {"ddName": "charge_allowed", "bitSize": 8}, {"ddName": "crash_detected", "bitSize": 32}, {"ddName": "hecu_abs_active", "bitSize": 32}, {"ddName": "hecu_abs_fail_wl", "bitSize": 32}, {"ddName": "hecu_avh_active", "bitSize": 32}, {"ddName": "hecu_avh_fail", "bitSize": 32}, {"ddName": "hecu_brk_fluid_level_low", "bitSize": 32}, {"ddName": "hecu_brk_pedal_act", "bitSize": 32}, {"ddName": "hecu_brk_worn_front", "bitSize": 32}, {"ddName": "hecu_brk_worn_rear", "bitSize": 32}, {"ddName": "hecu_cpd_active", "bitSize": 32}, {"ddName": "hecu_drp_active", "bitSize": 32}, {"ddName": "hecu_drp_failed", "bitSize": 32}, {"ddName": "hecu_epb_act_state_reliable", "bitSize": 8}, {"ddName": "hecu_epb_act_state", "bitSize": 8}, {"ddName": "hecu_gen_diag_a_reliable", "bitSize": 16}, {"ddName": "hecu_gen_diag_a", "bitSize": 16}, {"ddName": "hecu_gen_diag_b_reliable", "bitSize": 16}, {"ddName": "hecu_gen_diag_b", "bitSize": 16}, {"ddName": "hecu_park_brk_wl", "bitSize": 32}, {"ddName": "hvbs_engage", "bitSize": 8}, {"ddName": "inv_bus_curr_fl", "bitSize": 32}, {"ddName": "inv_bus_curr_fl_rel", "bitSize": 32}, {"ddName": "inv_bus_curr_fr", "bitSize": 32}, {"ddName": "inv_bus_curr_fr_rel", "bitSize": 32}, {"ddName": "inv_bus_curr_rl", "bitSize": 32}, {"ddName": "inv_bus_curr_rl_rel", "bitSize": 32}, {"ddName": "inv_bus_curr_rr", "bitSize": 32}, {"ddName": "inv_bus_curr_rr_rel", "bitSize": 32}, {"ddName": "inv_bus_volt_fl", "bitSize": 16}, {"ddName": "inv_bus_volt_fl_rel", "bitSize": 32}, {"ddName": "inv_bus_volt_fr", "bitSize": 16}, {"ddName": "inv_bus_volt_fr_rel", "bitSize": 32}, {"ddName": "inv_bus_volt_rl", "bitSize": 16}, {"ddName": "inv_bus_volt_rl_rel", "bitSize": 32}, {"ddName": "inv_bus_volt_rr", "bitSize": 16}, {"ddName": "inv_bus_volt_rr_rel", "bitSize": 32}, {"ddName": "inv_inverter_temp_fl", "bitSize": 16}, {"ddName": "inv_inverter_temp_fl_rel", "bitSize": 32}, {"ddName": "inv_inverter_temp_fr", "bitSize": 16}, {"ddName": "inv_inverter_temp_fr_rel", "bitSize": 32}, {"ddName": "inv_inverter_temp_rl", "bitSize": 16}, {"ddName": "inv_inverter_temp_rl_rel", "bitSize": 32}, {"ddName": "inv_inverter_temp_rr", "bitSize": 16}, {"ddName": "inv_inverter_temp_rr_rel", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_fl", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_fl_rel", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_fr", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_fr_rel", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_rl", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_rl_rel", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_rr", "bitSize": 32}, {"ddName": "inv_motor_rot_spd_rr_rel", "bitSize": 32}, {"ddName": "inv_motor_temp_fl", "bitSize": 16}, {"ddName": "inv_motor_temp_fl_rel", "bitSize": 32}, {"ddName": "inv_motor_temp_fr", "bitSize": 16}, {"ddName": "inv_motor_temp_fr_rel", "bitSize": 32}, {"ddName": "inv_motor_temp_rl", "bitSize": 16}, {"ddName": "inv_motor_temp_rl_rel", "bitSize": 32}, {"ddName": "inv_motor_temp_rr", "bitSize": 16}, {"ddName": "inv_motor_temp_rr_rel", "bitSize": 32}, {"ddName": "inv_regen_trq_setpoint", "bitSize": 32}, {"ddName": "lvbs_engage", "bitSize": 8}, {"ddName": "regen_control_request", "bitSize": 32}, {"ddName": "safe_driving_gear_inhibit", "bitSize": 32}, {"ddName": "safe_hv_cur_rampdown_req", "bitSize": 32}, {"ddName": "safety_cruise_disable_request", "bitSize": 32}, {"ddName": "safety_doors_unlock_request", "bitSize": 16}, {"ddName": "safety_hazard_lights_request", "bitSize": 32}, {"ddName": "safety_horn_request", "bitSize": 32}, {"ddName": "safety_interior_lights_request", "bitSize": 32}, {"ddName": "safety_perm_axle_trq_diff_max_reliable", "bitSize": 32}, {"ddName": "safety_perm_axle_trq_diff_max", "bitSize": 32}, {"ddName": "safety_perm_wheel_trq_max", "bitSize": 32}, {"ddName": "safety_perm_wheel_trq_min", "bitSize": 32}, {"ddName": "safety_vehicle_speed_limit", "bitSize": 8}, {"ddName": "ssc_hmi_scenario_drvr_action", "bitSize": 16}, {"ddName": "ssc_hmi_scenario_issue", "bitSize": 16}, {"ddName": "ssc_hmi_scenario_telltale", "bitSize": 16}, {"ddName": "ssc_power_mode", "bitSize": 32}, {"ddName": "vehicle_lateral_accel_reliable", "bitSize": 32}, {"ddName": "vehicle_lateral_accel", "bitSize": 32}, {"ddName": "vehicle_long_accel_reliable", "bitSize": 32}, {"ddName": "vehicle_long_accel", "bitSize": 32}, {"ddName": "vehicle_motion_state", "bitSize": 32}, {"ddName": "vehicle_speed", "bitSize": 32}, {"ddName": "vehicle_speed_reliability", "bitSize": 16}, {"ddName": "yaw_rate_reliable", "bitSize": 32}, {"ddName": "yaw_rate", "bitSize": 32}] };
         
 		logical[1].name = "energy_controller_task_10ms";
         logical[1].priority = 10;
         logical[1].period = 10ms;
-        logical[1].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[1].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[1].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 419371648, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 419371392, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 419371136, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 419370880, "sizeInBytes": 1, "bus": "energy_management", "dd": []},
+			{"canID": 419370624, "sizeInBytes": 1, "bus": "energy_management", "dd": []},
+			{"canID": 419370368, "sizeInBytes": 7, "bus": "energy_management", "dd": []},
+			{"canID": 419370112, "sizeInBytes": 7, "bus": "energy_management", "dd": []},
+			{"canID": 419369856, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 419369600, "sizeInBytes": 7, "bus": "energy_management", "dd": []},
+			{"canID": 419369344, "sizeInBytes": 7, "bus": "energy_management", "dd": []},
+			{"canID": 215646848, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 486506624, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 419369088, "sizeInBytes": 7, "bus": "energy_management", "dd": []},
+			{"canID": 827, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 826, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 825, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 819, "sizeInBytes": 4, "bus": "HVBS", "dd": []},
+			{"canID": 822, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 820, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 821, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 818, "sizeInBytes": 8, "bus": "HVBS", "dd": []},
+			{"canID": 817, "sizeInBytes": 8, "bus": "HVBS", "dd": []}
+		]};
+        logical[1].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 419373442, "sizeInBytes": 6, "bus": "energy_management", "dd": []},
+			{"canID": 419373186, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 486506626, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 215744386, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 215646338, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 283, "sizeInBytes": 7, "bus": "HVBS", "dd": []}
+		]};
         logical[1].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "lvbs_relay_enable", "bitSize": 8}] };
         
 		logical[2].name = "gsl_task";
@@ -397,8 +444,16 @@ module SCUNode extends LyPhysicalNode {
 		logical[3].name = "amg_task";
         logical[3].priority = 10;
         logical[3].period = 10ms;
-        logical[3].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[3].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[3].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 2027, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 1022, "sizeInBytes": 8, "bus": "powertrain", "dd": []}
+		]};
+        logical[3].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 1347, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 388, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 2019, "sizeInBytes": 8, "bus": "powertrain", "dd": []},
+			{"canID": 2015, "sizeInBytes": 8, "bus": "powertrain", "dd": []}
+		]};
         logical[3].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "acu_crash_detected", "bitSize": 32}, {"ddName": "acu_ignition_request", "bitSize": 32}, {"ddName": "airbag_hmi_scenario", "bitSize": 16}, {"ddName": "belt_buckle_status", "bitSize": 8}, {"ddName": "belt_reminder_status", "bitSize": 8}, {"ddName": "seat_occupant_status", "bitSize": 8}] };
         
 		logical[4].name = "sai_task";
@@ -453,8 +508,37 @@ module SCUNode extends LyPhysicalNode {
 		logical[10].name = "energy_controller_task_50ms";
         logical[10].priority = 8;
         logical[10].period = 50ms;
-        logical[10].canInput = FiCo4OMNeT::CanList{definition: []};
-        logical[10].canOutput = FiCo4OMNeT::CanList{definition: []};
+        logical[10].canInput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 1049, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1113, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1801, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1832, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1833, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1894, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1945, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 452664324, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 912, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1761, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 896, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1701, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1155, "sizeInBytes": 7, "bus": "energy_management", "dd": []},
+			{"canID": 899, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 643, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 387, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1154, "sizeInBytes": 5, "bus": "energy_management", "dd": []},
+			{"canID": 898, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 642, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 386, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+		]};
+        logical[10].canOutput = FiCo4OMNeT::CanList{definition: [
+			{"canID": 1809, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 452664320, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1751, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 904, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1310, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1680, "sizeInBytes": 8, "bus": "energy_management", "dd": []},
+			{"canID": 1691, "sizeInBytes": 8, "bus": "energy_management", "dd": []}
+		]};
         logical[10].dataDictOut = FiCo4OMNeT::DataDictList{definition: [{"ddName": "actual_grid_charging_current", "bitSize": 32}, {"ddName": "actual_input_power_obc_charge", "bitSize": 32}, {"ddName": "actual_max_charge_current", "bitSize": 32}, {"ddName": "actual_max_charge_soc", "bitSize": 32}, {"ddName": "actual_max_discharge_current", "bitSize": 32}, {"ddName": "actual_operating_mode_esc", "bitSize": 16}, {"ddName": "actual_power_hv_to_lv", "bitSize": 32}, {"ddName": "actual_power_obc_charge", "bitSize": 32}, {"ddName": "bms_hvbs_aux_req", "bitSize": 8}, {"ddName": "bms_hvbs_charge_aval_req", "bitSize": 32}, {"ddName": "bms_hvbs_isolation_req", "bitSize": 8}, {"ddName": "bms_hvbs_range_req", "bitSize": 8}, {"ddName": "bms_hvbs_sleep_req", "bitSize": 8}, {"ddName": "bms_hvbs_state_request", "bitSize": 8}, {"ddName": "charge_mode", "bitSize": 16}, {"ddName": "charging_cable_locked", "bitSize": 16}, {"ddName": "charging_cable_plugged_in", "bitSize": 16}, {"ddName": "esc_hmi_scenario", "bitSize": 16}, {"ddName": "esc_power_mode", "bitSize": 32}, {"ddName": "esc_ready_to_charge", "bitSize": 32}, {"ddName": "hlc_state", "bitSize": 32}, {"ddName": "hv_battery_actual_power", "bitSize": 32}, {"ddName": "hv_bms_voltext", "bitSize": 32}, {"ddName": "hv_bus_voltage", "bitSize": 16}, {"ddName": "hv_current_draw", "bitSize": 32}, {"ddName": "hv_sop_charge", "bitSize": 32}, {"ddName": "hv_sop_discharge", "bitSize": 32}, {"ddName": "hvbs_system_voltage", "bitSize": 32}, {"ddName": "hvbs_temperature_cell_max", "bitSize": 32}, {"ddName": "hvbs_temperature_cell_min", "bitSize": 32}, {"ddName": "hvbs_voltage_cell_max", "bitSize": 32}, {"ddName": "hvbs_voltage_cell_min", "bitSize": 32}, {"ddName": "lead_acid_battery_voltage", "bitSize": 16}, {"ddName": "lv_available_for_use", "bitSize": 8}, {"ddName": "lv_battery_actual_power", "bitSize": 32}, {"ddName": "lv_bms_current", "bitSize": 32}, {"ddName": "lv_bms_temp_max", "bitSize": 32}, {"ddName": "lv_bms_voltage", "bitSize": 32}, {"ddName": "lv_cell_temp_2_1_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_2_1", "bitSize": 16}, {"ddName": "lv_cell_temp_2_2_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_2_2", "bitSize": 16}, {"ddName": "lv_cell_temp_2_3_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_2_3", "bitSize": 16}, {"ddName": "lv_cell_temp_2_4_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_2_4", "bitSize": 16}, {"ddName": "lv_cell_temp_3_1_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_3_1", "bitSize": 16}, {"ddName": "lv_cell_temp_3_2_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_3_2", "bitSize": 16}, {"ddName": "lv_cell_temp_3_3_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_3_3", "bitSize": 16}, {"ddName": "lv_cell_temp_3_4_reliable", "bitSize": 16}, {"ddName": "lv_cell_temp_3_4", "bitSize": 16}, {"ddName": "lv_error_flags", "bitSize": 32}, {"ddName": "lv_relay_state", "bitSize": 32}, {"ddName": "lv_relay_state_request", "bitSize": 8}, {"ddName": "lv_voltage_12v", "bitSize": 32}, {"ddName": "obc_charger_state", "bitSize": 32}, {"ddName": "obc_error_0", "bitSize": 32}, {"ddName": "obc_error_1", "bitSize": 32}, {"ddName": "obc_error_2", "bitSize": 32}, {"ddName": "obc_error_3", "bitSize": 32}, {"ddName": "obc_error_4", "bitSize": 32}, {"ddName": "obc_error_5", "bitSize": 32}, {"ddName": "obc_error_6", "bitSize": 32}, {"ddName": "obc_error_7", "bitSize": 32}, {"ddName": "obc_error_8", "bitSize": 32}, {"ddName": "obc_error_9", "bitSize": 32}, {"ddName": "obc_ssc_status", "bitSize": 16}, {"ddName": "powerloss_hv", "bitSize": 32}, {"ddName": "powerloss_hvlv", "bitSize": 32}, {"ddName": "powerloss_obc", "bitSize": 32}, {"ddName": "predicted_max_charge_current_1s", "bitSize": 32}, {"ddName": "predicted_max_charge_power_1s", "bitSize": 32}, {"ddName": "predicted_max_discharge_current_1s", "bitSize": 32}, {"ddName": "predicted_max_discharge_power_1s", "bitSize": 32}, {"ddName": "remaining_charge_time", "bitSize": 32}, {"ddName": "remaining_energy_hv", "bitSize": 32}, {"ddName": "remaining_energy_lv", "bitSize": 32}, {"ddName": "scu_power_supply_voltage", "bitSize": 16}, {"ddName": "state_of_charge_hv", "bitSize": 32}, {"ddName": "state_of_charge_lv", "bitSize": 32}, {"ddName": "temp_actual_hv_battery", "bitSize": 32}, {"ddName": "temp_actual_hv_lv_converter", "bitSize": 32}, {"ddName": "temp_actual_int_high_hv_battery", "bitSize": 32}, {"ddName": "temp_actual_int_low_hv_battery", "bitSize": 32}, {"ddName": "temp_actual_obc", "bitSize": 32}, {"ddName": "total_energy_hv_and_lv", "bitSize": 32}] };
         
 		logical[11].name = "dcm_scu_task";

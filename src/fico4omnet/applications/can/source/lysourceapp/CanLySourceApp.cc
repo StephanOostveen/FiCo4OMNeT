@@ -229,15 +229,16 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 			emit(busInfo[busName].bufferLengthSignal, bufferSize(busName));
 			sendIt = msgToSend.erase(sendIt);
 		}
-
+		
 		for (auto& [busName, info] : busInfo) {
 			auto& [name, buf] = *softwareBuffer.find(busName);
+			int count = 0;
 			while (info.hardwareBufferSize < maxHardwareBufferLength) {
 				auto frameIt =
 				    std::find_if(std::begin(buf), std::end(buf), [](const auto& tuple) noexcept {
 					    return tuple.second != nullptr;
 				    });
-				if (frameIt == std::cend(buf)) {
+				if (frameIt == std::end(buf)) {
 					break;
 				}
 
@@ -248,7 +249,9 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 
 				emit(sentDFSignal, frame);
 				emit(info.bufferLengthSignal, bufferSize(busName));
+				++count;
 			}
+			EV << omnetpp::simTime() << "Put " << count << " frames in the hardware buffer of bus " << busName << "\n";
 		}
 
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)

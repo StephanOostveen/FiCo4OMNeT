@@ -6,10 +6,19 @@ import fico4omnet.nodes.can.LyPhysicalNode;
 import fico4omnet.examplesLy.LYES.SCUNode;
 import fico4omnet.examplesLy.LYES.VCUNode;
 import fico4omnet.examplesLy.LYES.CGWNode;
+// import fico4omnet.examplesLy.LYES.TestNode;
 import fico4omnet.operatingsystem.Observer;
 
 network LyCanNetwork {
     parameters:
+        // Test.sourceApp.period = 2ms;
+        // Test.sourceApp.executionTime = 0.1ms;
+        // Test.sinkApp.period = 2ms;
+        // Test.sinkApp.executionTime = 0.1ms;
+        // Test.scheduler.executionTime = 0.001ms;
+        // Test.scheduler.interarrivalTime = 1ms;
+        // // # SCU has 20 logicals;
+        // Test.logical[0].executionTime  = 0.256678ms;
     submodules:
         //CAN busses:
         powertrain: CanBus;
@@ -27,6 +36,8 @@ network LyCanNetwork {
         SCU: SCUNode;
         CGW: CGWNode;
         VCU: VCUNode;
+
+        // Test: TestNode;
         
         /////////////////////////////
         //Parametrizable end nodes:
@@ -78,16 +89,32 @@ network LyCanNetwork {
         inverter_fr : ParametrizableNode;
         inverter_rl : ParametrizableNode;
         inverter_rr : ParametrizableNode;
+
+        //SCU esc:
+        obc: ParametrizableNode;
+        charging_control_unit: ParametrizableNode;
+        hvlv: ParametrizableNode;
+        brake_ecu: ParametrizableNode;
+        tester: ParametrizableNode;
+        lv_battery_2: ParametrizableNode;
+        lv_battery_3: ParametrizableNode;
+
+        sc: ParametrizableNode;
+        BMS: ParametrizableNode;
+
+        airbags: ParametrizableNode;
         //Observer:
         Observer: Observer;
         
     connections:
         powertrain.gate++ <--> SCU.gate++;
         powertrain.gate++ <--> CGW.gate++;
+        // powertrain.gate++ <--> Test.gate++;
         powertrain.gate++ <--> doorFrontLeft.gate++;
         powertrain.gate++ <--> doorRearRight.gate++;
         powertrain.gate++ <--> mediaECU.gate++;
         powertrain.gate++ <--> alarm_system.gate++;
+        powertrain.gate++ <--> airbags.gate++;
 
         vehicle.gate++ <--> VCU.gate++;
         vehicle.gate++ <--> CGW.gate++;
@@ -139,5 +166,15 @@ network LyCanNetwork {
         drivetrain.gate++ <--> inverter_rr.gate++;
 
         energy_management.gate++ <--> SCU.gate++;
+        energy_management.gate++ <--> obc.gate++;
+        energy_management.gate++ <--> charging_control_unit.gate++;
+        energy_management.gate++ <--> hvlv.gate++;
+        energy_management.gate++ <--> brake_ecu.gate++;
+        energy_management.gate++ <--> tester.gate++;
+        energy_management.gate++ <--> lv_battery_2.gate++;
+        energy_management.gate++ <--> lv_battery_3.gate++;
+
         HVBS.gate++ <--> SCU.gate++;
+        HVBS.gate++ <--> sc.gate++;
+        HVBS.gate++ <--> BMS.gate++;
 }

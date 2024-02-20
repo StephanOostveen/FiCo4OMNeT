@@ -23,7 +23,7 @@ simple CanLySourceApp like ISourceApplication, ITask {
 
         //Statistics
         @statistic[txDF](title="source app transmitted data frame"; source=txDF; record=count);
-        @statistic[overrun](title="CAN message overrun"; record=vector);
+        @statistic[overrun](title="CAN message overrun"; record=vector;interpolationmode=none);
         
         //Needed for inheriting from the CanTrafficSourceAppBase
         //The Data Frames ID(s) - String parameter (int) separated with commas

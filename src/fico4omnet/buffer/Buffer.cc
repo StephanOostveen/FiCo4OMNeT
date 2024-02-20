@@ -44,6 +44,8 @@ void Buffer::initialize() {
     queueSize = 0;
     queueLengthSignal = registerSignal("length");
     queueSizeSignal = registerSignal("size");
+    emit(queueLengthSignal, 0u);
+    emit(queueSizeSignal, 0);
 }
 
 void Buffer::handleMessage(cMessage *msg) {

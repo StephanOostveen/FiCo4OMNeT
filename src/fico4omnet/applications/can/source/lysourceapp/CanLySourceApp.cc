@@ -177,7 +177,7 @@ CanLySourceApp::BusInfo CanLySourceApp::createBusInfo(const std::string& busName
 	subscribe(bufferLengthSignal, warmupFilterStats);
 	warmupFilterVector->addDelegate(vectorRecorder);
 	warmupFilterStats->addDelegate(statsRecorder);
-
+	emit(bufferLengthSignal, 0);
 	return {0, bufferLengthSignal, gateID};
 }
 

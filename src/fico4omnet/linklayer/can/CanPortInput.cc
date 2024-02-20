@@ -55,6 +55,7 @@ void CanPortInput::initialize() {
     receivedDFPayload = registerSignal("rxDFPayload");
     receivedRFPayload = registerSignal("rxRFPayload");
     WATCH_MAP(incomingDataFrameIDs);
+    WATCH_MAP(outgoingDataFrameIDs);
 }
 
 void CanPortInput::handleMessage(cMessage *msg) {

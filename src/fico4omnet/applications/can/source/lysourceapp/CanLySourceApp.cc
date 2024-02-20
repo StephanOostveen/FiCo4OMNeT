@@ -54,6 +54,8 @@ void CanLySourceApp::initialize(int stage) {
 		period        = par("period").doubleValue();
 
 		overrunSignal = registerSignal("overrun");
+		stateSignal   = registerSignal("state");
+		emit(stateSignal, static_cast<unsigned long>(state));
 
 		// NOLINTBEGIN(cppcoreguidelines-owning-memory)
 		selfmsg     = new omnetpp::cMessage{"CANLySourceApp execution finished"};
@@ -95,6 +97,7 @@ void CanLySourceApp::receiveSignal(omnetpp::cComponent* src, omnetpp::simsignal_
 				msg->setState(TaskState::Ready);
 				send(msg, "scheduler$o");
 				state = TaskState::Ready;
+				emit(stateSignal, static_cast<unsigned long>(state));
 				EV << omnetpp::simTime() << " Became ready due to received length signal\n";
 			}
 		}
@@ -229,9 +232,10 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 			emit(busInfo[busName].bufferLengthSignal, bufferSize(busName));
 			sendIt = msgToSend.erase(sendIt);
 		}
-		
+
 		for (auto& [busName, info] : busInfo) {
 			auto& [name, buf] = *softwareBuffer.find(busName);
+
 			int count = 0;
 			while (info.hardwareBufferSize < maxHardwareBufferLength) {
 				auto frameIt =
@@ -251,13 +255,15 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 				emit(info.bufferLengthSignal, bufferSize(busName));
 				++count;
 			}
-			EV << omnetpp::simTime() << "Put " << count << " frames in the hardware buffer of bus " << busName << "\n";
+			EV << omnetpp::simTime() << "Put " << count << " frames in the hardware buffer of bus "
+			   << busName << "\n";
 		}
 
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
 		send(blockedMsg, "scheduler$o");
 		state = TaskState::Blocked;
+		emit(stateSignal, static_cast<unsigned long>(state));
 		// Determine next state
 		for (const auto& [name, buf] : softwareBuffer) {
 			if (bufferSize(name) != 0) {
@@ -273,7 +279,8 @@ void CanLySourceApp::handleMessage(omnetpp::cMessage* msg) {
 	} else if (msg->isSelfMessage() && msg == scheduleMsg) {
 		if (state == TaskState::Blocked) {
 			EV << omnetpp::simTime() << " Was Blocked, became ready due to schedulemsg\n";
-			state          = TaskState::Ready;
+			state = TaskState::Ready;
+			emit(stateSignal, static_cast<unsigned long>(state));
 			auto* readyMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 			readyMsg->setState(TaskState::Ready);
 			send(readyMsg, "scheduler$o");
@@ -360,6 +367,7 @@ void CanLySourceApp::handleIncomingFrame(CanDataFrame* frame) {
 			msg->setState(TaskState::Ready);
 			send(msg, "scheduler$o");
 			state = TaskState::Ready;
+			emit(stateSignal, static_cast<unsigned long>(state));
 		}
 	}
 }
@@ -376,11 +384,13 @@ void CanLySourceApp::handleResume() {
 	if (state == TaskState::Paused) {
 		EV << omnetpp::simTime() << " Resumed from pause\n";   // NOLINT
 		state = TaskState::Running;
+		emit(stateSignal, static_cast<unsigned long>(state));
 	}
 	if (state == TaskState::Ready) {
 		EV << omnetpp::simTime() << " Task was ready and became running\n";
 		executionTimeLeft = executionTime;
 		state             = TaskState::Running;
+		emit(stateSignal, static_cast<unsigned long>(state));
 		selectNextFrames();
 	}
 	scheduleAfter(executionTimeLeft, selfmsg);
@@ -404,6 +414,7 @@ void CanLySourceApp::handlePause() {
 	auto timePassed   = omnetpp::simTime() - startTime;
 	executionTimeLeft = executionTimeLeft - timePassed;
 	state             = TaskState::Paused;
+	emit(stateSignal, static_cast<unsigned long>(state));
 	cancelEvent(selfmsg);
 }
 

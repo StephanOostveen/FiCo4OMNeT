@@ -62,6 +62,7 @@ private:
 
 	// txDF signal resides in CANTrafficSourceAppBase
 	omnetpp::simsignal_t overrunSignal;
+	omnetpp::simsignal_t stateSignal;
 
 	omnetpp::cMessage* selfmsg{nullptr};
 	omnetpp::cMessage* scheduleMsg{nullptr};

@@ -37,8 +37,9 @@ void Logical::initialize() {
 	period        = par("period").doubleValue();
 	executionTime = par("executionTime").doubleValue();
 
-	readSignal  = registerSignal("read");
-	writeSignal = registerSignal("write");
+	readSignal    = registerSignal("read");
+	writeSignal   = registerSignal("write");
+	overrunSignal = registerSignal("overrun");
 
 	parseCANInput();
 	parseCANOutput();
@@ -46,8 +47,11 @@ void Logical::initialize() {
 
 	EV << getFullPath() << " receives from CAN: " << canBusOutputDicts.size()
 	   << " datadicts, generates locally : " << localOutputDicts.size() << '\n';
-	executionMsg = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
-	scheduleMsg  = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
+	// NOLINTBEGIN(cppcoreguidelines-owning-memory)
+	executionMsg = new omnetpp::cMessage{"execution finished"};
+	executionMsg->setSchedulingPriority(-1);
+	scheduleMsg = new omnetpp::cMessage{"time to reschedule"};
+	// NOLINTEND(cppcoreguidelines-owning-memory)
 	scheduleAt(0, scheduleMsg);
 }
 
@@ -167,6 +171,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 			send(readyMsg, "scheduler$o");
 		} else {
 			// TODO: Task overrun
+			emit(overrunSignal, 1);
 			if (hasGUI()) {
 				EV << omnetpp::simTime() << "Logical overrun: " << getFullPath() << "\n";
 			}
@@ -191,6 +196,7 @@ void Logical::handleMessage(omnetpp::cMessage* msg) {
 
 		auto* blockedMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 		blockedMsg->setState(TaskState::Blocked);
+		blockedMsg->setSchedulingPriority(-1);
 		send(blockedMsg, "scheduler$o");
 		EV << omnetpp::simTime() << " state was: " << state << " became Blocked\n";
 		state = TaskState::Blocked;

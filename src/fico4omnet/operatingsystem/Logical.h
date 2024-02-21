@@ -103,6 +103,7 @@ private:
 
 	omnetpp::simsignal_t readSignal;
 	omnetpp::simsignal_t writeSignal;
+	omnetpp::simsignal_t overrunSignal;
 };
 }   // namespace FiCo4OMNeT
 #endif

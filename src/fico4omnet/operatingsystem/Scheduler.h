@@ -2,6 +2,7 @@
 #define FiCo4OMNeT_SCHEDULER_H
 
 #include "omnetpp/cgate.h"
+#include "omnetpp/clistener.h"
 #include "omnetpp/cmessage.h"
 #include "omnetpp/csimplemodule.h"
 #include "omnetpp/simkerneldefs.h"
@@ -49,6 +50,8 @@ private:
 	omnetpp::simtime_t interarrivalTime{};
 
 	omnetpp::cMessage* selfmsg{nullptr};
+
+	omnetpp::simsignal_t runningSignal;
 };
 }   // namespace FiCo4OMNeT
 #endif

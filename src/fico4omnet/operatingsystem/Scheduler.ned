@@ -7,6 +7,8 @@ simple Scheduler {
         double executionTime @unit(s) = default(0.001ms);
         double interarrivalTime @unit(s) = default(1ms);
 
+        @signal[running];
+        @statistic[running](title="Running task"; source=running; record=vector; interpolationmode=sample-hold);
     gates:
         inout tasks[] @labels(SchedulerEvent);
 }

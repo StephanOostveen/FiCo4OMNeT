@@ -24,6 +24,7 @@ void Scheduler::initialize(int stage) {
 		executionTime    = par("executionTime").doubleValue();
 		interarrivalTime = par("interarrivalTime").doubleValue();
 		selfmsg          = new omnetpp::cMessage{};   // NOLINT(cppcoreguidelines-owning-memory)
+		runningSignal    = registerSignal("running");
 	} else if (stage == 1) {
 		const auto taskGateInSize  = gateSize("tasks$i");
 		const auto taskGateOutSize = gateSize("tasks$o");
@@ -51,6 +52,7 @@ void Scheduler::initialize(int stage) {
 		// Start the Physical with the execution of the scheduler
 		isExecuting = true;
 		scheduleAt(executionTime, selfmsg);
+		emit(runningSignal, 1);
 	}
 }
 
@@ -69,6 +71,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			paused.emplace_back(*running);
 			running = std::nullopt;
 		}
+		emit(runningSignal, 1);
 		isExecuting = true;
 		scheduleAfter(executionTime, selfmsg);
 	} else if (msg->isSelfMessage() && isExecuting) {
@@ -136,8 +139,11 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			auto* runningMsg = new SchedulerEvent();   // NOLINT(cppcoreguidelines-owning-memory)
 			runningMsg->setState(TaskState::Running);
 			send(runningMsg, running->outGate);
+			auto gateIndex = gate(running->outGate)->getIndex();
+			emit(runningSignal, gateIndex + 2);
 		} else {
 			EV << omnetpp::simTime() << " No eligible task found\n";
+			emit(runningSignal, 0);
 		}
 		isExecuting = false;
 		auto delta  = interarrivalTime - executionTime;
@@ -163,6 +169,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 			// the scheduler immediately.
 			blocked.emplace_back(*running);
 			running = std::nullopt;
+			emit(runningSignal, 1);
 			cancelEvent(selfmsg);
 			scheduleAfter(0, selfmsg);
 			break;
@@ -172,6 +179,7 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 				// Put running task in ready queue, execute the scheduler.
 				ready.emplace_back(*running);
 				running = std::nullopt;
+				emit(runningSignal, 1);
 				cancelEvent(selfmsg);
 				scheduleAfter(0, selfmsg);
 				break;
@@ -187,12 +195,14 @@ void Scheduler::handleMessage(omnetpp::cMessage* msg) {
 
 				if (!running.has_value() && !isExecuting) {
 					// processor is idle and scheduler is not executing, trigger the scheduler
+					emit(runningSignal, 1);
 					cancelEvent(selfmsg);
 					scheduleAfter(0, selfmsg);
 				} else if (running.has_value() && !isExecuting
 				           && running->priority < it->priority) {
 					// Higher priority message became ready while scheduler was not executing.
 					// Force the execution of the scheduler to determine the new task to run
+					emit(runningSignal, 1);
 					cancelEvent(selfmsg);
 					scheduleAfter(0, selfmsg);
 				}

@@ -23,7 +23,9 @@ simple Logical like ITask {
         @signal[read](type=DataDictionaryValue);
         // publishes that it has produced a certain DataDictionary with writeCount x and genTime y
         @signal[write](type=DataDictionaryValue);
+        @signal[overrun];
 
+        @statistic[overrun](title="Task overrun"; source=overrun; record=count,vector; interpolationmode=none);
     gates:
         output frameOut @labels(DataFrame); // Transmit a frame on the CAN bus
         inout getFrame; // Read a received CAN frame

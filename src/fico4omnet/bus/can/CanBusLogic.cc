@@ -71,6 +71,7 @@ void CanBusLogic::initialize() {
     rcvdRFSignal = registerSignal("rxRF");
     rcvdEFSignal = registerSignal("rxEF");
     stateSignal = registerSignal("state");
+    overrunSignal = registerSignal("overrun");
     arbitrationLengthSignal = registerSignal("arbitrationLength");
 
     bubble("state: idle");
@@ -151,6 +152,7 @@ void CanBusLogic::grantSendingPermission() {
     }
 
     if (sendcount > 1) {
+        emit(overrunSignal, currentSendingID);
         getParentModule()->cComponent::bubble("More than one node sends with the same ID.");
         getParentModule()->getDisplayString().setTagArg("i2", 0, "status/excl3");
         getParentModule()->getDisplayString().setTagArg("tt", 0, "WARNING: More than one node sends with the same ID.");

@@ -36,6 +36,7 @@
 
 //Auto-generated messages
 #include "CanDataFrame_m.h"
+#include "omnetpp/clistener.h"
 
 namespace FiCo4OMNeT {
 
@@ -168,6 +169,7 @@ private:
      */
     simsignal_t arbitrationLengthSignal;
 
+    simsignal_t overrunSignal;
     /**
      * The sign-in-time of the current data-frame. Used for forwarding to the node so that they can collect data about the elapsed time.
      *

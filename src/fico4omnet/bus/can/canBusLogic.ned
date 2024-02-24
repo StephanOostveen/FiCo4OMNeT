@@ -53,6 +53,8 @@ simple CanBusLogic
         //Signal frames for arbitration (all frames at all senders ready to be transmitted)
         @signal[arbitrationLength](type=unsigned long; unit=packets);
         
+        @signal[overrun](type=unsigned long);
+
         //Statistic about the number of received data frames
         @statistic[rxDF](title="data frames received"; source=rxDF; record=count; interpolationmode=none);
         //Statistic about the can IDs received via data frames
@@ -75,6 +77,7 @@ simple CanBusLogic
         //Statistic of the number of frames at all senders ready to be sent
         @statistic[arbitrationLength](title="Arbitration Length"; source=arbitrationLength; unit=packets; record=vector,stats; interpolationmode=sample-hold);
         
+        @statistic[overrun]("CAN IDs that overran"; source="overrun"; record=count,vector; interpolationmode=none);
     gates:
         inout gate;
 }
